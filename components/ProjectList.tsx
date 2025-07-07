@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
 import { toast } from 'react-hot-toast'
-import { Video, Calendar, Clock, Download, Eye, Trash2, Loader2 } from 'lucide-react'
+import { Video, Calendar, Clock, Download, Eye, Trash2, Loader2, Brain, MessageSquare } from 'lucide-react'
 import { formatDuration } from '@/lib/utils'
+import ProjectDetailView from './ProjectDetailView'
 
 interface Project {
   id: string
@@ -16,6 +17,8 @@ interface Project {
   sample_video_url?: string
   character_image_url?: string
   audio_file_url?: string
+  analysis_result?: any
+  generation_plan?: any
   generated_videos?: GeneratedVideo[]
 }
 
