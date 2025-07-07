@@ -92,14 +92,10 @@ export default function HomePage() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800 border-slate-700">
+          <TabsList className="grid w-full grid-cols-3 bg-slate-800 border-slate-700">
             <TabsTrigger value="converter" className="data-[state=active]:bg-blue-600">
               <Smartphone className="h-4 w-4 mr-2" />
               APK Converter
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="data-[state=active]:bg-blue-600">
-              <Bot className="h-4 w-4 mr-2" />
-              AI Assistant
             </TabsTrigger>
             <TabsTrigger value="monitor" className="data-[state=active]:bg-blue-600">
               <Activity className="h-4 w-4 mr-2" />
