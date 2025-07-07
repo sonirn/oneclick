@@ -301,30 +301,6 @@ export function APKConverter() {
             </div>
           </CardContent>
         </Card>
-
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-lg text-white">AI Monitoring</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-300">AI Bot Active</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 bg-blue-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-300">Auto-Fix Enabled</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 bg-purple-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-300">Performance Monitoring</span>
-            </div>
-            <Separator className="bg-slate-600" />
-            <p className="text-xs text-gray-400">
-              The AI bot continuously monitors this website for issues and automatically applies fixes.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
