@@ -56,59 +56,109 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
+    const contentType = request.headers.get('content-type') || ''
     
-    const title = formData.get('title') as string
-    const description = formData.get('description') as string
-    const userId = formData.get('userId') as string
-    const videoFile = formData.get('video') as File
-    const imageFile = formData.get('image') as File | null
-    const audioFile = formData.get('audio') as File | null
+    let title: string, description: string, userId: string
+    let videoFile: File | null = null, imageFile: File | null = null, audioFile: File | null = null
+    let sampleVideoUrl: string | null = null, characterImageUrl: string | null = null, audioFileUrl: string | null = null
 
-    if (!title || !userId || !videoFile) {
+    if (contentType.includes('application/json')) {
+      // Handle JSON request (for testing or API calls)
+      const body = await request.json()
+      title = body.title
+      description = body.description || ''
+      userId = body.userId
+      
+      // For JSON requests, we can accept URLs directly or create mock data
+      if (body.mockData) {
+        const projectId = uuidv4()
+        sampleVideoUrl = `https://example.com/videos/${projectId}.mp4`
+        characterImageUrl = body.characterImageUrl || `https://example.com/images/${projectId}.jpg`
+        audioFileUrl = body.audioFileUrl || `https://example.com/audio/${projectId}.mp3`
+      } else {
+        sampleVideoUrl = body.sampleVideoUrl
+        characterImageUrl = body.characterImageUrl
+        audioFileUrl = body.audioFileUrl
+      }
+    } else {
+      // Handle FormData request (from frontend file uploads)
+      const formData = await request.formData()
+      
+      title = formData.get('title') as string
+      description = formData.get('description') as string
+      userId = formData.get('userId') as string
+      videoFile = formData.get('video') as File
+      imageFile = formData.get('image') as File | null
+      audioFile = formData.get('audio') as File | null
+    }
+
+    if (!title || !userId) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Missing required fields' 
+        error: 'Missing required fields (title and userId)' 
       }, { status: 400 })
     }
 
-    // Upload files to R2
+    // For FormData requests, we need a video file
+    if (contentType.includes('multipart/form-data') && !videoFile) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Video file is required for file uploads' 
+      }, { status: 400 })
+    }
+
+    // For JSON requests, we need at least a sample video URL
+    if (contentType.includes('application/json') && !sampleVideoUrl) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Sample video URL is required for JSON requests' 
+      }, { status: 400 })
+    }
+
     const projectId = uuidv4()
     const uploads: { [key: string]: string } = {}
 
-    // Upload video
-    const videoBuffer = Buffer.from(await videoFile.arrayBuffer())
-    const videoKey = `projects/${projectId}/video-${Date.now()}.${videoFile.name.split('.').pop()}`
-    const videoUpload = await r2Storage.uploadFile(videoKey, videoBuffer, videoFile.type)
-    
-    if (!videoUpload.success) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Failed to upload video' 
-      }, { status: 500 })
-    }
-    uploads.sample_video_url = videoUpload.url
-
-    // Upload image if provided
-    if (imageFile) {
-      const imageBuffer = Buffer.from(await imageFile.arrayBuffer())
-      const imageKey = `projects/${projectId}/image-${Date.now()}.${imageFile.name.split('.').pop()}`
-      const imageUpload = await r2Storage.uploadFile(imageKey, imageBuffer, imageFile.type)
+    // Handle file uploads for FormData requests
+    if (videoFile) {
+      // Upload video
+      const videoBuffer = Buffer.from(await videoFile.arrayBuffer())
+      const videoKey = `projects/${projectId}/video-${Date.now()}.${videoFile.name.split('.').pop()}`
+      const videoUpload = await r2Storage.uploadFile(videoKey, videoBuffer, videoFile.type)
       
-      if (imageUpload.success) {
-        uploads.character_image_url = imageUpload.url
+      if (!videoUpload.success) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to upload video' 
+        }, { status: 500 })
       }
-    }
+      uploads.sample_video_url = videoUpload.url
 
-    // Upload audio if provided
-    if (audioFile) {
-      const audioBuffer = Buffer.from(await audioFile.arrayBuffer())
-      const audioKey = `projects/${projectId}/audio-${Date.now()}.${audioFile.name.split('.').pop()}`
-      const audioUpload = await r2Storage.uploadFile(audioKey, audioBuffer, audioFile.type)
-      
-      if (audioUpload.success) {
-        uploads.audio_file_url = audioUpload.url
+      // Upload image if provided
+      if (imageFile) {
+        const imageBuffer = Buffer.from(await imageFile.arrayBuffer())
+        const imageKey = `projects/${projectId}/image-${Date.now()}.${imageFile.name.split('.').pop()}`
+        const imageUpload = await r2Storage.uploadFile(imageKey, imageBuffer, imageFile.type)
+        
+        if (imageUpload.success) {
+          uploads.character_image_url = imageUpload.url
+        }
       }
+
+      // Upload audio if provided
+      if (audioFile) {
+        const audioBuffer = Buffer.from(await audioFile.arrayBuffer())
+        const audioKey = `projects/${projectId}/audio-${Date.now()}.${audioFile.name.split('.').pop()}`
+        const audioUpload = await r2Storage.uploadFile(audioKey, audioBuffer, audioFile.type)
+        
+        if (audioUpload.success) {
+          uploads.audio_file_url = audioUpload.url
+        }
+      }
+    } else {
+      // Use provided URLs for JSON requests
+      uploads.sample_video_url = sampleVideoUrl!
+      if (characterImageUrl) uploads.character_image_url = characterImageUrl
+      if (audioFileUrl) uploads.audio_file_url = audioFileUrl
     }
 
     // Create project in database
