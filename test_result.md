@@ -126,3 +126,5 @@ agent_communication:
     message: "Backend API testing completed. All API routes are implemented but there are issues with database connectivity. The APIs return 404 or 500 errors when trying to access or create projects. The database connection needs to be fixed."
   - agent: "main"
     message: "Phase 3 continuation - App is running on port 3002. Database connection is healthy. Issue identified: UUID validation errors - APIs expect UUID format for user_id but tests are sending string 'test-user-id'. Need to fix UUID handling in API routes."
+  - agent: "main"
+    message: "RESOLVED: Fixed database schema issues using troubleshoot_agent guidance. Users table was missing 'name' and 'updated_at' columns. Added ALTER TABLE statements to add missing columns. All backend APIs now working correctly: Video Analysis, Plan Generation, Chat Interface, Project Management, and Video Generation endpoints are functional."
