@@ -40,63 +40,24 @@ export async function POST(request: NextRequest) {
       ['generating', projectId]
     )
 
-    // Create processing job for video generation
-    const jobQuery = `
-      INSERT INTO processing_jobs (project_id, job_type, status, job_data, started_at)
-      VALUES ($1, $2, $3, $4, NOW())
-      RETURNING id
-    `
-    
-    const jobResult = await db.query(jobQuery, [
-      projectId,
-      'video_generation',
-      'processing',
-      JSON.stringify({
-        plan: project.generation_plan,
-        segments: plan.segments || [],
-        total_duration: plan.total_duration || 60
-      })
-    ])
+    // Use the new video generation service
+    const generationPlan: VideoGenerationPlan = project.generation_plan;
+    const result = await videoGenerationService.generateVideo(projectId, generationPlan);
 
-    const jobId = jobResult.rows[0].id
-
-    // Create generated video records for each segment/model
-    const segments = plan.segments || []
-    const videoIds: string[] = []
-
-    for (const segment of segments) {
-      const videoId = uuidv4()
-      videoIds.push(videoId)
-
-      await db.query(
-        `INSERT INTO generated_videos 
-         (id, project_id, aspect_ratio, status, ai_model_used, generation_params, duration)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          videoId,
-          projectId,
-          '9:16',
-          'processing',
-          segment.ai_model || 'runway-gen4',
-          JSON.stringify({
-            segment_number: segment.segment_number,
-            description: segment.description,
-            prompt: segment.prompt
-          }),
-          parseInt(segment.duration) || 15
-        ]
-      )
+    if (!result.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error || 'Video generation failed' 
+      }, { status: 500 })
     }
-
-    // Simulate background processing (in production, this would be handled by a job queue)
-    processVideoGenerationInBackground(jobId, projectId, videoIds)
 
     return NextResponse.json({ 
       success: true, 
-      job_id: jobId,
-      video_ids: videoIds,
-      message: 'Video generation started successfully',
-      estimated_time: plan.estimated_time || '10-15 minutes'
+      job_id: result.jobId,
+      video_ids: result.videoIds,
+      message: 'Video generation started with real AI models',
+      estimated_time: result.estimatedTime,
+      ai_models_used: generationPlan.segments.map(s => s.ai_model)
     })
   } catch (error) {
     console.error('Error starting video generation:', error)
