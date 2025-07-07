@@ -185,24 +185,7 @@ export async function logRuntimeEvent(
   return DatabaseService.createSystemLog({
     level,
     message,
-    source: "runtime",
+    source: "apk-conversion",
     metadata,
   })
-}
-
-export const checkDatabaseHealth = async () => {
-  try {
-    const db = getDatabase()
-    if (!db) {
-      return { status: "error", message: "Database connection not available" }
-    }
-
-    await db`SELECT 1`
-    return { status: "healthy", message: "Database connection successful" }
-  } catch (error) {
-    return {
-      status: "error",
-      message: `Database health check failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    }
-  }
 }
