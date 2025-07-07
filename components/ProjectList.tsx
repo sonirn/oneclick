@@ -203,9 +203,12 @@ export default function ProjectList({ user }: ProjectListProps) {
                 <h3 className="text-lg font-semibold text-gray-900 truncate">
                   {project.title}
                 </h3>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
-                  {project.status}
-                </span>
+                <div className="flex items-center space-x-1">
+                  {getStatusIcon(project.status)}
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
+                    {project.status.replace('_', ' ')}
+                  </span>
+                </div>
               </div>
 
               {project.description && (
@@ -217,6 +220,28 @@ export default function ProjectList({ user }: ProjectListProps) {
               <div className="flex items-center text-sm text-gray-500 mb-4">
                 <Calendar className="w-4 h-4 mr-1" />
                 {formatDate(project.created_at)}
+              </div>
+
+              {/* Progress Indicators */}
+              <div className="flex items-center space-x-4 mb-4 text-xs">
+                <div className={`flex items-center space-x-1 ${
+                  project.analysis_result ? 'text-green-600' : 'text-gray-400'
+                }`}>
+                  <Brain className="w-3 h-3" />
+                  <span>Analysis</span>
+                </div>
+                <div className={`flex items-center space-x-1 ${
+                  project.generation_plan ? 'text-green-600' : 'text-gray-400'
+                }`}>
+                  <MessageSquare className="w-3 h-3" />
+                  <span>Plan</span>
+                </div>
+                <div className={`flex items-center space-x-1 ${
+                  project.generated_videos && project.generated_videos.length > 0 ? 'text-green-600' : 'text-gray-400'
+                }`}>
+                  <Video className="w-3 h-3" />
+                  <span>Videos ({project.generated_videos?.length || 0})</span>
+                </div>
               </div>
 
               {project.generated_videos && project.generated_videos.length > 0 && (
