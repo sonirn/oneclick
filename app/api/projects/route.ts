@@ -166,10 +166,9 @@ export async function POST(request: NextRequest) {
       INSERT INTO users (id, email, name) 
       VALUES ($1, $2, $3) 
       ON CONFLICT (id) DO NOTHING
-      RETURNING *
     `
     
-    await db.query(userQuery, [userId, `user-${userId}@example.com`, `User ${userId}`])
+    await db.query(userQuery, [userId, `user-${userId}@example.com`, `User ${userId.substring(0, 8)}`])
 
     // Create project in database
     const query = `
