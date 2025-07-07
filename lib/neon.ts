@@ -124,7 +124,7 @@ export class DatabaseService {
     return result as Conversion[]
   }
 
-  // System log operations
+  // System log operations (for APK conversion logging only)
   static async createSystemLog(data: {
     level: "info" | "warn" | "error" | "debug"
     message: string
@@ -143,128 +143,6 @@ export class DatabaseService {
     return result[0] as SystemLog
   }
 
-  static async getSystemLogs(
-    options: {
-      level?: string
-      source?: string
-      limit?: number
-      offset?: number
-    } = {},
-  ): Promise<SystemLog[]> {
-    const db = getDatabase()
-    if (!db) {
-      throw new Error("Database connection not available")
-    }
-    const { level, source, limit = 100, offset = 0 } = options
-
-    let query = "SELECT * FROM system_logs WHERE 1=1"
-    const params: any[] = []
-
-    if (level) {
-      params.push(level)
-      query += ` AND level = $${params.length}`
-    }
-
-    if (source) {
-      params.push(source)
-      query += ` AND source = $${params.length}`
-    }
-
-    params.push(limit, offset)
-    query += ` ORDER BY created_at DESC LIMIT $${params.length - 1} OFFSET $${params.length}`
-
-    const result = await executeQuery(query, params)
-    return result as SystemLog[]
-  }
-
-  // Chat operations
-  static async createChatMessage(data: {
-    session_id: string
-    role: "user" | "assistant"
-    content: string
-    metadata?: Record<string, any>
-  }): Promise<ChatMessage> {
-    const db = getDatabase()
-    if (!db) {
-      throw new Error("Database connection not available")
-    }
-    const result = await db`
-      INSERT INTO chat_history (session_id, role, content, metadata)
-      VALUES (${data.session_id}, ${data.role}, ${data.content}, ${JSON.stringify(data.metadata || {})})
-      RETURNING *
-    `
-    return result[0] as ChatMessage
-  }
-
-  static async getChatHistory(sessionId: string, limit = 50): Promise<ChatMessage[]> {
-    const db = getDatabase()
-    if (!db) {
-      throw new Error("Database connection not available")
-    }
-    const result = await db`
-      SELECT * FROM chat_history 
-      WHERE session_id = ${sessionId}
-      ORDER BY created_at ASC
-      LIMIT ${limit}
-    `
-    return result as ChatMessage[]
-  }
-
-  // Issue detection operations
-  static async createDetectedIssue(data: {
-    issue_type: string
-    severity: "low" | "medium" | "high" | "critical"
-    description: string
-    suggested_fix?: string
-  }): Promise<DetectedIssue> {
-    const db = getDatabase()
-    if (!db) {
-      throw new Error("Database connection not available")
-    }
-    const result = await db`
-      INSERT INTO detected_issues (issue_type, severity, description, suggested_fix)
-      VALUES (${data.issue_type}, ${data.severity}, ${data.description}, ${data.suggested_fix})
-      RETURNING *
-    `
-    return result[0] as DetectedIssue
-  }
-
-  static async updateDetectedIssue(
-    id: string,
-    updates: {
-      status?: "detected" | "fixing" | "fixed" | "ignored"
-      auto_fix_applied?: boolean
-      resolved_at?: string
-    },
-  ): Promise<DetectedIssue> {
-    const db = getDatabase()
-    if (!db) {
-      throw new Error("Database connection not available")
-    }
-    const result = await db`
-      UPDATE detected_issues 
-      SET status = ${updates.status}, 
-          auto_fix_applied = ${updates.auto_fix_applied},
-          resolved_at = ${updates.resolved_at}
-      WHERE id = ${id}
-      RETURNING *
-    `
-    return result[0] as DetectedIssue
-  }
-
-  static async getActiveIssues(): Promise<DetectedIssue[]> {
-    const db = getDatabase()
-    if (!db) {
-      throw new Error("Database connection not available")
-    }
-    const result = await db`
-      SELECT * FROM detected_issues 
-      WHERE status IN ('detected', 'fixing')
-      ORDER BY severity DESC, created_at DESC
-    `
-    return result as DetectedIssue[]
-  }
-
   // Cleanup operations
   static async cleanupExpiredRecords(): Promise<number> {
     const db = getDatabase()
@@ -277,23 +155,6 @@ export class DatabaseService {
       RETURNING COUNT(*) as deleted_count
     `
     return result[0]?.deleted_count || 0
-  }
-
-  // Health check
-  static async healthCheck(): Promise<{ status: string; timestamp: string }> {
-    try {
-      const db = getDatabase()
-      if (!db) {
-        throw new Error("Database connection not available")
-      }
-      const result = await db`SELECT NOW() as timestamp`
-      return {
-        status: "healthy",
-        timestamp: result[0].timestamp,
-      }
-    } catch (error) {
-      throw new Error(`Database health check failed: ${error}`)
-    }
   }
 
   // Add executeQuery method to DatabaseService
