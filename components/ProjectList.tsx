@@ -272,7 +272,7 @@ export default function ProjectList({ user }: ProjectListProps) {
 
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => setSelectedProject(project)}
+                  onClick={() => setSelectedProjectId(project.id)}
                   className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200"
                 >
                   <Eye className="w-4 h-4 mr-1" />
