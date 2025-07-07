@@ -111,21 +111,6 @@ export default function HomePage() {
             <APKConverter />
           </TabsContent>
 
-          <TabsContent value="chat" className="mt-6">
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Bot className="h-5 w-5 text-blue-400" />
-                  AI Assistant
-                  <Badge variant="secondary">Expert Mode</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AIChat />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="monitor" className="mt-6">
             <SystemMonitor />
           </TabsContent>
