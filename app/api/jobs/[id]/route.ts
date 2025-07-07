@@ -57,10 +57,10 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const jobId = params.id
+    const { id: jobId } = await params
 
     // Cancel the job by updating its status
     const result = await db.query(
