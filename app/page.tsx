@@ -68,12 +68,9 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Smartphone className="h-8 w-8 text-blue-400" />
             <h1 className="text-4xl font-bold text-white">APK Converter</h1>
-            <Badge variant="secondary" className="bg-blue-600 text-white">
-              AI Powered
-            </Badge>
           </div>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Convert Android APK files to debug, sandbox, and combined modes with AI monitoring
+            Convert Android APK files to debug, sandbox, and combined modes
           </p>
 
           {/* System Status */}
