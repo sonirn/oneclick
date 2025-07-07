@@ -63,27 +63,6 @@ export interface SystemLog {
   created_at: string
 }
 
-export interface ChatMessage {
-  id: string
-  session_id: string
-  role: "user" | "assistant"
-  content: string
-  metadata?: Record<string, any>
-  created_at: string
-}
-
-export interface DetectedIssue {
-  id: string
-  issue_type: string
-  severity: "low" | "medium" | "high" | "critical"
-  description: string
-  suggested_fix?: string
-  status: "detected" | "fixing" | "fixed" | "ignored"
-  auto_fix_applied: boolean
-  created_at: string
-  resolved_at?: string
-}
-
 export class DatabaseService {
   // Conversion operations
   static async createConversion(data: {
