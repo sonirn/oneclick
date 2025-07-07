@@ -109,3 +109,5 @@ agent_communication:
     message: "Starting backend API testing for the AI Video Generation Platform."
   - agent: "testing"
     message: "Backend API testing completed. All API routes are implemented but there are issues with database connectivity. The APIs return 404 or 500 errors when trying to access or create projects. The database connection needs to be fixed."
+  - agent: "main"
+    message: "Phase 3 continuation - App is running on port 3002. Database connection is healthy. Issue identified: UUID validation errors - APIs expect UUID format for user_id but tests are sending string 'test-user-id'. Need to fix UUID handling in API routes."
