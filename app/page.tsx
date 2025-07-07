@@ -1,13 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Smartphone, Activity, AlertTriangle, CheckCircle } from "lucide-react"
-import { SystemMonitor } from "@/components/system-monitor"
+import { Smartphone } from "lucide-react"
 import { APKConverter } from "@/components/apk-converter"
-import { AutoFixSystem } from "@/components/auto-fix-system"
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("converter")
