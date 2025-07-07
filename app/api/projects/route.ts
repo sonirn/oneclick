@@ -162,13 +162,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Ensure user exists in database (create if not exists)
+    const userEmail = `user-${userId.substring(0, 8)}@example.com`
     const userQuery = `
       INSERT INTO users (id, email, name) 
       VALUES ($1, $2, $3) 
-      ON CONFLICT (id) DO NOTHING
+      ON CONFLICT (email) DO UPDATE SET 
+        id = EXCLUDED.id,
+        updated_at = NOW()
     `
     
-    await db.query(userQuery, [userId, `user-${userId}@example.com`, `User ${userId.substring(0, 8)}`])
+    await db.query(userQuery, [userId, userEmail, `User ${userId.substring(0, 8)}`])
 
     // Create project in database
     const query = `
