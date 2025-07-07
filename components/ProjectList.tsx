@@ -98,12 +98,33 @@ export default function ProjectList({ user }: ProjectListProps) {
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800'
+      case 'analyzing':
+      case 'planning':
       case 'processing':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-blue-100 text-blue-800'
+      case 'analyzed':
+      case 'plan_ready':
+        return 'bg-purple-100 text-purple-800'
       case 'failed':
+      case 'analysis_failed':
+      case 'plan_failed':
         return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'analyzed':
+        return <Brain className="w-4 h-4 text-purple-600" />
+      case 'plan_ready':
+        return <MessageSquare className="w-4 h-4 text-green-600" />
+      case 'analyzing':
+      case 'planning':
+        return <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+      default:
+        return null
     }
   }
 
