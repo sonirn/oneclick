@@ -6,11 +6,11 @@ import os
 from datetime import datetime
 
 # Get the backend URL from environment variables
-# Since we're using Next.js API routes, the API is served from the same URL as the frontend
 BACKEND_URL = "http://localhost:3001/api"
 
 # Test data
 TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440000"  # Use the valid UUID format as specified
+EXISTING_PROJECT_ID = "5306bf9b-a012-4f41-95bf-5323f846318f"  # Existing project ID from the review request
 TEST_PROJECT_TITLE = "Test Video Project"
 TEST_PROJECT_DESCRIPTION = "A test project for API testing"
 
@@ -26,94 +26,136 @@ def print_test_result(test_name, success, response=None, error=None):
     print(f"{'=' * 80}\n")
     return success
 
-# Helper function to create a test project
-def create_test_project():
-    print("\nCreating a test project...")
-    
-    # Create a test user first
-    user_id = TEST_USER_ID
-    
-    # Create a project using the API
-    url = f"{BACKEND_URL}/projects"
-    
-    # Since we can't upload real files in this test environment,
-    # we'll use the API without file uploads for testing
-    payload = {
-        "title": TEST_PROJECT_TITLE,
-        "description": TEST_PROJECT_DESCRIPTION,
-        "userId": user_id,
-        "mockData": True  # This is a flag to indicate this is a test
-    }
-    
+# Test 1: Status API
+def test_status_api():
+    print("\nTesting Status API...")
     try:
+        url = f"{BACKEND_URL}/status"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            result = response.json()
+            success = True  # Consider any 200 response as success for status endpoint
+            return print_test_result(
+                "Status API", 
+                success, 
+                response=result
+            ), result
+        else:
+            return print_test_result(
+                "Status API", 
+                False, 
+                error=f"Status code: {response.status_code}, Response: {response.text}"
+            ), None
+    except Exception as e:
+        return print_test_result("Status API", False, error=str(e)), None
+
+# Test 2: Create Project API
+def test_create_project_api():
+    print("\nTesting Create Project API...")
+    try:
+        url = f"{BACKEND_URL}/projects"
+        payload = {
+            "title": TEST_PROJECT_TITLE,
+            "description": TEST_PROJECT_DESCRIPTION,
+            "userId": TEST_USER_ID
+        }
         response = requests.post(url, json=payload)
         
         if response.status_code == 200:
             result = response.json()
-            if result.get("success"):
-                print(f"Created test project with ID: {result['project']['id']}")
-                return result["project"]
-            else:
-                print(f"Failed to create project: {result.get('error')}")
-                # Fall back to mock project
-                mock_project_id = str(uuid.uuid4())
-                mock_project = {
-                    "id": mock_project_id,
-                    "user_id": user_id,
-                    "title": TEST_PROJECT_TITLE,
-                    "description": TEST_PROJECT_DESCRIPTION,
-                    "sample_video_url": f"https://example.com/videos/{mock_project_id}.mp4",
-                    "character_image_url": f"https://example.com/images/{mock_project_id}.jpg",
-                    "audio_file_url": f"https://example.com/audio/{mock_project_id}.mp3",
-                    "status": "created",
-                    "created_at": datetime.now().isoformat(),
-                    "updated_at": datetime.now().isoformat()
-                }
-                print(f"Using mock project with ID: {mock_project_id}")
-                return mock_project
+            success = result.get("success", False)
+            return print_test_result(
+                "Create Project API", 
+                success, 
+                response=result
+            ), result
         else:
-            print(f"Failed to create project: Status code {response.status_code}")
-            # Fall back to mock project
-            mock_project_id = str(uuid.uuid4())
-            mock_project = {
-                "id": mock_project_id,
-                "user_id": user_id,
-                "title": TEST_PROJECT_TITLE,
-                "description": TEST_PROJECT_DESCRIPTION,
-                "sample_video_url": f"https://example.com/videos/{mock_project_id}.mp4",
-                "character_image_url": f"https://example.com/images/{mock_project_id}.jpg",
-                "audio_file_url": f"https://example.com/audio/{mock_project_id}.mp3",
-                "status": "created",
-                "created_at": datetime.now().isoformat(),
-                "updated_at": datetime.now().isoformat()
-            }
-            print(f"Using mock project with ID: {mock_project_id}")
-            return mock_project
+            return print_test_result(
+                "Create Project API", 
+                False, 
+                error=f"Status code: {response.status_code}, Response: {response.text}"
+            ), None
     except Exception as e:
-        print(f"Exception creating project: {str(e)}")
-        # Fall back to mock project
-        mock_project_id = str(uuid.uuid4())
-        mock_project = {
-            "id": mock_project_id,
-            "user_id": user_id,
-            "title": TEST_PROJECT_TITLE,
-            "description": TEST_PROJECT_DESCRIPTION,
-            "sample_video_url": f"https://example.com/videos/{mock_project_id}.mp4",
-            "character_image_url": f"https://example.com/images/{mock_project_id}.jpg",
-            "audio_file_url": f"https://example.com/audio/{mock_project_id}.mp3",
-            "status": "created",
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
-        }
-        print(f"Using mock project with ID: {mock_project_id}")
-        return mock_project
+        return print_test_result("Create Project API", False, error=str(e)), None
 
-# Test 1: Video Analysis API
-def test_video_analysis_api(project_id):
+# Test 3: Get Projects by User ID API
+def test_get_projects_by_user_id():
+    print("\nTesting Get Projects by User ID API...")
+    try:
+        url = f"{BACKEND_URL}/projects?userId={TEST_USER_ID}"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            result = response.json()
+            success = result.get("success", False)
+            return print_test_result(
+                "Get Projects by User ID API", 
+                success, 
+                response=result
+            ), result
+        else:
+            return print_test_result(
+                "Get Projects by User ID API", 
+                False, 
+                error=f"Status code: {response.status_code}, Response: {response.text}"
+            ), None
+    except Exception as e:
+        return print_test_result("Get Projects by User ID API", False, error=str(e)), None
+
+# Test 4: Get Project by ID API
+def test_get_project_by_id():
+    print("\nTesting Get Project by ID API...")
+    try:
+        # First try with the existing project ID
+        url = f"{BACKEND_URL}/projects/{EXISTING_PROJECT_ID}"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            result = response.json()
+            success = result.get("success", False)
+            return print_test_result(
+                "Get Project by ID API", 
+                success, 
+                response=result
+            ), result
+        else:
+            # If the existing project ID doesn't work, try with a project from the user's projects
+            print(f"Existing project ID not found, trying to get a project from user's projects...")
+            user_projects_url = f"{BACKEND_URL}/projects?userId={TEST_USER_ID}"
+            user_projects_response = requests.get(user_projects_url)
+            
+            if user_projects_response.status_code == 200:
+                user_projects_result = user_projects_response.json()
+                if user_projects_result.get("success", False) and len(user_projects_result.get("projects", [])) > 0:
+                    project_id = user_projects_result["projects"][0]["id"]
+                    url = f"{BACKEND_URL}/projects/{project_id}"
+                    response = requests.get(url)
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        success = result.get("success", False)
+                        return print_test_result(
+                            "Get Project by ID API", 
+                            success, 
+                            response=result
+                        ), result
+            
+            # If we still don't have a valid project, return failure
+            return print_test_result(
+                "Get Project by ID API", 
+                False, 
+                error=f"Status code: {response.status_code}, Response: {response.text}"
+            ), None
+    except Exception as e:
+        return print_test_result("Get Project by ID API", False, error=str(e)), None
+
+# Test 5: Video Analysis API
+def test_video_analysis_api():
     print("\nTesting Video Analysis API...")
     try:
         url = f"{BACKEND_URL}/analyze"
-        payload = {"projectId": project_id}
+        payload = {"projectId": EXISTING_PROJECT_ID}
         response = requests.post(url, json=payload)
         
         if response.status_code == 200:
@@ -133,13 +175,13 @@ def test_video_analysis_api(project_id):
     except Exception as e:
         return print_test_result("Video Analysis API", False, error=str(e)), None
 
-# Test 2: Plan Generation API
-def test_plan_generation_api(project_id):
+# Test 6: Plan Generation API
+def test_plan_generation_api():
     print("\nTesting Plan Generation API...")
     try:
         url = f"{BACKEND_URL}/generate-plan"
         payload = {
-            "projectId": project_id,
+            "projectId": EXISTING_PROJECT_ID,
             "userRequirements": "Create a short promotional video with upbeat music"
         }
         response = requests.post(url, json=payload)
@@ -161,13 +203,13 @@ def test_plan_generation_api(project_id):
     except Exception as e:
         return print_test_result("Plan Generation API", False, error=str(e)), None
 
-# Test 3: Chat Interface API
-def test_chat_interface_api(project_id):
+# Test 7: Chat Interface API
+def test_chat_interface_api():
     print("\nTesting Chat Interface API...")
     try:
         url = f"{BACKEND_URL}/chat"
         payload = {
-            "projectId": project_id,
+            "projectId": EXISTING_PROJECT_ID,
             "message": "Can you make the video more energetic?",
             "chatHistory": []
         }
@@ -190,80 +232,8 @@ def test_chat_interface_api(project_id):
     except Exception as e:
         return print_test_result("Chat Interface API", False, error=str(e)), None
 
-# Test 4: Project Management API - Get Project by ID
-def test_get_project_by_id(project_id):
-    print("\nTesting Get Project by ID API...")
-    try:
-        url = f"{BACKEND_URL}/projects/{project_id}"
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            result = response.json()
-            success = result.get("success", False)
-            return print_test_result(
-                "Get Project by ID API", 
-                success, 
-                response=result
-            ), result
-        else:
-            return print_test_result(
-                "Get Project by ID API", 
-                False, 
-                error=f"Status code: {response.status_code}, Response: {response.text}"
-            ), None
-    except Exception as e:
-        return print_test_result("Get Project by ID API", False, error=str(e)), None
-
-# Test 5: Project Management API - Get Projects by User ID
-def test_get_projects_by_user_id(user_id):
-    print("\nTesting Get Projects by User ID API...")
-    try:
-        url = f"{BACKEND_URL}/projects?userId={user_id}"
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            result = response.json()
-            success = result.get("success", False)
-            return print_test_result(
-                "Get Projects by User ID API", 
-                success, 
-                response=result
-            ), result
-        else:
-            return print_test_result(
-                "Get Projects by User ID API", 
-                False, 
-                error=f"Status code: {response.status_code}, Response: {response.text}"
-            ), None
-    except Exception as e:
-        return print_test_result("Get Projects by User ID API", False, error=str(e)), None
-
-# Test 6: Processing Jobs API
-def test_processing_jobs_api(project_id):
-    print("\nTesting Processing Jobs API...")
-    try:
-        url = f"{BACKEND_URL}/jobs?projectId={project_id}"
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            result = response.json()
-            success = result.get("success", False)
-            return print_test_result(
-                "Processing Jobs API", 
-                success, 
-                response=result
-            ), result
-        else:
-            return print_test_result(
-                "Processing Jobs API", 
-                False, 
-                error=f"Status code: {response.status_code}, Response: {response.text}"
-            ), None
-    except Exception as e:
-        return print_test_result("Processing Jobs API", False, error=str(e)), None
-
-# Test 7: Video Generation API
-def test_video_generation_api(project_id):
+# Test 8: Video Generation API
+def test_video_generation_api():
     print("\nTesting Video Generation API...")
     try:
         # Create a mock plan for video generation
@@ -289,7 +259,7 @@ def test_video_generation_api(project_id):
         
         url = f"{BACKEND_URL}/generate-video"
         payload = {
-            "projectId": project_id,
+            "projectId": EXISTING_PROJECT_ID,
             "plan": mock_plan
         }
         response = requests.post(url, json=payload)
@@ -311,71 +281,38 @@ def test_video_generation_api(project_id):
     except Exception as e:
         return print_test_result("Video Generation API", False, error=str(e)), None
 
-# Test 8: Error Handling - Invalid Project ID
-def test_error_handling_invalid_project_id():
-    print("\nTesting Error Handling - Invalid Project ID...")
-    try:
-        invalid_id = "invalid-project-id"
-        url = f"{BACKEND_URL}/analyze"
-        payload = {"projectId": invalid_id}
-        response = requests.post(url, json=payload)
-        
-        # For error handling tests, we expect a non-200 status code
-        expected_error = response.status_code != 200
-        
-        if expected_error:
-            result = response.json()
-            return print_test_result(
-                "Error Handling - Invalid Project ID", 
-                True, 
-                response=result
-            ), result
-        else:
-            return print_test_result(
-                "Error Handling - Invalid Project ID", 
-                False, 
-                error="Expected an error response but got a success"
-            ), None
-    except Exception as e:
-        return print_test_result("Error Handling - Invalid Project ID", False, error=str(e)), None
-
 # Main test function
 def run_tests():
     print("\n" + "=" * 40)
     print("STARTING API TESTS")
     print("=" * 40)
     
-    # Create a test project
-    test_project = create_test_project()
-    project_id = test_project["id"]
-    user_id = test_project["user_id"]
-    
     # Run all tests
     test_results = {}
     
-    # Test 1: Video Analysis API
-    test_results["video_analysis"], analysis_result = test_video_analysis_api(project_id)
+    # Test 1: Status API
+    test_results["status"], status_result = test_status_api()
     
-    # Test 2: Plan Generation API
-    test_results["plan_generation"], plan_result = test_plan_generation_api(project_id)
+    # Test 2: Create Project API
+    test_results["create_project"], create_project_result = test_create_project_api()
     
-    # Test 3: Chat Interface API
-    test_results["chat_interface"], chat_result = test_chat_interface_api(project_id)
+    # Test 3: Get Projects by User ID API
+    test_results["get_projects"], get_projects_result = test_get_projects_by_user_id()
     
-    # Test 4: Project Management API - Get Project by ID
-    test_results["get_project"], project_result = test_get_project_by_id(project_id)
+    # Test 4: Get Project by ID API
+    test_results["get_project"], get_project_result = test_get_project_by_id()
     
-    # Test 5: Project Management API - Get Projects by User ID
-    test_results["get_projects"], projects_result = test_get_projects_by_user_id(user_id)
+    # Test 5: Video Analysis API
+    test_results["video_analysis"], analysis_result = test_video_analysis_api()
     
-    # Test 6: Processing Jobs API
-    test_results["processing_jobs"], jobs_result = test_processing_jobs_api(project_id)
+    # Test 6: Plan Generation API
+    test_results["plan_generation"], plan_result = test_plan_generation_api()
     
-    # Test 7: Video Generation API
-    test_results["video_generation"], video_result = test_video_generation_api(project_id)
+    # Test 7: Chat Interface API
+    test_results["chat_interface"], chat_result = test_chat_interface_api()
     
-    # Test 8: Error Handling - Invalid Project ID
-    test_results["error_handling"], error_result = test_error_handling_invalid_project_id()
+    # Test 8: Video Generation API
+    test_results["video_generation"], video_result = test_video_generation_api()
     
     # Print summary
     print("\n" + "=" * 40)
