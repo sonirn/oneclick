@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "db:test": "curl -s http://localhost:3001/api/test-db",
+    "status": "curl -s http://localhost:3001/api/status | jq",
+    "ai-status": "curl -s http://localhost:3001/api/ai-status | jq"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.450.0",
