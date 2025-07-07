@@ -91,7 +91,6 @@ export async function GET() {
     const criticalEndpoints = [
       "/api/health",
       "/api/convert",
-      "/api/chat",
       "/api/auto-fix/scan",
       "/api/auto-fix/apply",
       "/api/auto-fix/deploy",
