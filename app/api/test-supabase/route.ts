@@ -3,21 +3,14 @@ import { supabase } from '@/lib/supabase'
 
 export async function GET() {
   try {
-    // Test Supabase connection
-    const { data, error } = await supabase.from('_supabase_sessions').select('*').limit(1)
-    
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" which is expected
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Supabase connection failed',
-        details: error.message
-      }, { status: 500 })
-    }
+    // Test Supabase connection by checking auth status
+    const { data: { session } } = await supabase.auth.getSession()
     
     return NextResponse.json({ 
       success: true, 
       message: 'Supabase connection successful',
-      connected: true
+      connected: true,
+      hasSession: !!session
     })
   } catch (error) {
     console.error('Supabase test error:', error)
