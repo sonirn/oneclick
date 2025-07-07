@@ -290,23 +290,146 @@ async function modifyResources(resourcesXml: string, mode: string): Promise<stri
         result.resources = {}
       }
 
+      // Add boolean debug flags
       if (!result.resources['bool']) {
         result.resources['bool'] = []
       }
 
-      // Add premium flags
-      result.resources['bool'].push(
-        { '$': { 'name': 'premium_unlocked' }, '_': 'true' },
-        { '$': { 'name': 'pro_version' }, '_': 'true' }
-      )
+      const debugBooleans = [
+        { '$': { 'name': 'debug_mode_enabled' }, '_': 'true' },
+        { '$': { 'name': 'api_monitoring_enabled' }, '_': 'true' },
+        { '$': { 'name': 'network_logging_enabled' }, '_': 'true' },
+        { '$': { 'name': 'http_interceptor_enabled' }, '_': 'true' },
+        { '$': { 'name': 'ssl_bypass_enabled' }, '_': 'true' },
+        { '$': { 'name': 'proxy_support_enabled' }, '_': 'true' },
+        { '$': { 'name': 'detailed_logging_enabled' }, '_': 'true' },
+        { '$': { 'name': 'performance_monitoring_enabled' }, '_': 'true' },
+        { '$': { 'name': 'memory_debugging_enabled' }, '_': 'true' },
+        { '$': { 'name': 'thread_monitoring_enabled' }, '_': 'true' },
+        { '$': { 'name': 'database_logging_enabled' }, '_': 'true' },
+        { '$': { 'name': 'exception_reporting_enabled' }, '_': 'true' },
+        { '$': { 'name': 'debug_overlay_enabled' }, '_': 'true' },
+        { '$': { 'name': 'api_response_caching_enabled' }, '_': 'true' },
+        { '$': { 'name': 'request_replay_enabled' }, '_': 'true' },
+        { '$': { 'name': 'continuous_api_monitoring' }, '_': 'true' },
+        { '$': { 'name': 'real_time_api_logging' }, '_': 'true' },
+        { '$': { 'name': 'automatic_api_retry' }, '_': 'true' },
+        { '$': { 'name': 'api_response_validation' }, '_': 'true' },
+        { '$': { 'name': 'api_error_handling_debug' }, '_': 'true' },
+      ]
 
+      if (mode === 'sandbox' || mode === 'combined') {
+        debugBooleans.push(
+          { '$': { 'name': 'billing_debug_enabled' }, '_': 'true' },
+          { '$': { 'name': 'payment_mock_enabled' }, '_': 'true' },
+          { '$': { 'name': 'license_bypass_enabled' }, '_': 'true' },
+          { '$': { 'name': 'security_testing_enabled' }, '_': 'true' },
+          { '$': { 'name': 'sandbox_environment_active' }, '_': 'true' },
+        )
+      }
+
+      result.resources['bool'] = [...result.resources['bool'], ...debugBooleans]
+
+      // Add string configurations
       if (!result.resources['string']) {
         result.resources['string'] = []
       }
 
-      result.resources['string'].push(
-        { '$': { 'name': 'premium_mode' }, '_': mode }
-      )
+      const debugStrings = [
+        { '$': { 'name': 'debug_mode' }, '_': mode },
+        { '$': { 'name': 'api_base_url_debug' }, '_': 'https://api-debug.example.com' },
+        { '$': { 'name': 'api_monitoring_endpoint' }, '_': 'https://monitor.debug.com/api' },
+        { '$': { 'name': 'log_level' }, '_': 'VERBOSE' },
+        { '$': { 'name': 'network_timeout_debug' }, '_': '30000' },
+        { '$': { 'name': 'api_retry_count' }, '_': '5' },
+        { '$': { 'name': 'api_retry_delay' }, '_': '2000' },
+        { '$': { 'name': 'log_file_path' }, '_': '/sdcard/Android/data/package/files/debug_logs/' },
+        { '$': { 'name': 'api_log_file' }, '_': 'api_monitor.log' },
+        { '$': { 'name': 'network_log_file' }, '_': 'network_traffic.log' },
+        { '$': { 'name': 'performance_log_file' }, '_': 'performance.log' },
+        { '$': { 'name': 'error_log_file' }, '_': 'errors.log' },
+        { '$': { 'name': 'debug_notification_channel' }, '_': 'DEBUG_MONITORING' },
+        { '$': { 'name': 'api_monitoring_notification' }, '_': 'API calls are being monitored for debugging' },
+      ]
+
+      if (mode === 'sandbox' || mode === 'combined') {
+        debugStrings.push(
+          { '$': { 'name': 'sandbox_api_url' }, '_': 'https://sandbox-api.example.com' },
+          { '$': { 'name': 'mock_payment_url' }, '_': 'https://sandbox-payments.googleapis.com' },
+          { '$': { 'name': 'test_license_key' }, '_': 'test_license_key_123456' },
+          { '$': { 'name': 'billing_test_environment' }, '_': 'sandbox' },
+        )
+      }
+
+      result.resources['string'] = [...result.resources['string'], ...debugStrings]
+
+      // Add integer configurations
+      if (!result.resources['integer']) {
+        result.resources['integer'] = []
+      }
+
+      const debugIntegers = [
+        { '$': { 'name': 'api_monitoring_interval' }, '_': '1000' }, // Monitor every 1 second
+        { '$': { 'name': 'log_buffer_size' }, '_': '10000' },
+        { '$': { 'name': 'max_api_calls_per_minute' }, '_': '1000' },
+        { '$': { 'name': 'network_timeout_milliseconds' }, '_': '30000' },
+        { '$': { 'name': 'api_retry_max_attempts' }, '_': '5' },
+        { '$': { 'name': 'log_file_max_size_mb' }, '_': '100' },
+        { '$': { 'name': 'performance_sample_rate' }, '_': '100' }, // Sample 100% in debug mode
+      ]
+
+      result.resources['integer'] = [...result.resources['integer'], ...debugIntegers]
+
+      // Add arrays for API monitoring configurations
+      if (!result.resources['array']) {
+        result.resources['array'] = []
+      }
+
+      const debugArrays = [
+        {
+          '$': { 'name': 'monitored_api_endpoints' },
+          'item': [
+            { '_': '/api/login' },
+            { '_': '/api/auth' },
+            { '_': '/api/user' },
+            { '_': '/api/payment' },
+            { '_': '/api/billing' },
+            { '_': '/api/subscription' },
+            { '_': '/api/data' },
+            { '_': '/api/upload' },
+            { '_': '/api/download' },
+            { '_': '/api/analytics' },
+          ]
+        },
+        {
+          '$': { 'name': 'logged_http_methods' },
+          'item': [
+            { '_': 'GET' },
+            { '_': 'POST' },
+            { '_': 'PUT' },
+            { '_': 'DELETE' },
+            { '_': 'PATCH' },
+            { '_': 'HEAD' },
+            { '_': 'OPTIONS' },
+          ]
+        },
+        {
+          '$': { 'name': 'monitored_response_codes' },
+          'item': [
+            { '_': '200' },
+            { '_': '201' },
+            { '_': '400' },
+            { '_': '401' },
+            { '_': '403' },
+            { '_': '404' },
+            { '_': '500' },
+            { '_': '502' },
+            { '_': '503' },
+          ]
+        }
+      ]
+
+      result.resources['array'] = [...result.resources['array'], ...debugArrays]
 
       const builder = new Builder()
       resolve(builder.buildObject(result))
