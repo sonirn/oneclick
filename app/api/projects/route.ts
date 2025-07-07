@@ -161,6 +161,16 @@ export async function POST(request: NextRequest) {
       if (audioFileUrl) uploads.audio_file_url = audioFileUrl
     }
 
+    // Ensure user exists in database (create if not exists)
+    const userQuery = `
+      INSERT INTO users (id, email, name) 
+      VALUES ($1, $2, $3) 
+      ON CONFLICT (id) DO NOTHING
+      RETURNING *
+    `
+    
+    await db.query(userQuery, [userId, `user-${userId}@example.com`, `User ${userId}`])
+
     // Create project in database
     const query = `
       INSERT INTO projects (id, user_id, title, description, sample_video_url, character_image_url, audio_file_url, status)
