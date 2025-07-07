@@ -6,7 +6,8 @@ import os
 from datetime import datetime
 
 # Get the backend URL from environment variables
-BACKEND_URL = "https://tgjuxfndmuxwzloxezev.supabase.co/api"  # Using Supabase URL as the backend URL
+# Since we're using Next.js API routes, the API is served from the same URL as the frontend
+BACKEND_URL = "http://localhost:3000/api"
 
 # Test data
 TEST_USER_ID = str(uuid.uuid4())
