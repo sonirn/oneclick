@@ -136,6 +136,19 @@ export default function ProjectList({ user }: ProjectListProps) {
     })
   }
 
+  // If a project is selected, show the detail view
+  if (selectedProjectId) {
+    return (
+      <ProjectDetailView 
+        projectId={selectedProjectId}
+        onBack={() => {
+          setSelectedProjectId(null)
+          fetchProjects() // Refresh the list when coming back
+        }}
+      />
+    )
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -152,12 +165,6 @@ export default function ProjectList({ user }: ProjectListProps) {
         <p className="text-gray-600 mb-6">
           Create your first AI video project to get started
         </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
-        >
-          Create Project
-        </button>
       </div>
     )
   }
