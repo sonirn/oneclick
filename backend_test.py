@@ -10,7 +10,7 @@ from datetime import datetime
 BACKEND_URL = "http://localhost:3001/api"
 
 # Test data
-TEST_USER_ID = "00000000-0000-0000-0000-000000000001"  # Use the existing user ID
+TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440000"  # Use the valid UUID format as specified
 TEST_PROJECT_TITLE = "Test Video Project"
 TEST_PROJECT_DESCRIPTION = "A test project for API testing"
 
