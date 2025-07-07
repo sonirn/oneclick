@@ -183,7 +183,7 @@ export default function ProjectList({ user }: ProjectListProps) {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
-          <div key={project.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div key={project.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-w-16 aspect-h-9 bg-gray-200">
               {project.sample_video_url ? (
                 <video
