@@ -7,7 +7,7 @@ from datetime import datetime
 
 # Get the backend URL from environment variables
 # Since we're using Next.js API routes, the API is served from the same URL as the frontend
-BACKEND_URL = "http://localhost:3000/api"
+BACKEND_URL = "http://localhost:3001/api"
 
 # Test data
 TEST_USER_ID = "00000000-0000-0000-0000-000000000001"  # Use the existing user ID
