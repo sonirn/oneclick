@@ -42,7 +42,7 @@ interface ProjectListProps {
 export default function ProjectList({ user }: ProjectListProps) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProjects()
