@@ -166,9 +166,7 @@ export async function POST(request: NextRequest) {
     const userQuery = `
       INSERT INTO users (id, email, name) 
       VALUES ($1, $2, $3) 
-      ON CONFLICT (email) DO UPDATE SET 
-        id = EXCLUDED.id,
-        updated_at = NOW()
+      ON CONFLICT (email) DO NOTHING
     `
     
     await db.query(userQuery, [userId, userEmail, `User ${userId.substring(0, 8)}`])
