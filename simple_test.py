@@ -3,7 +3,7 @@ import json
 import time
 
 # API base URL
-BASE_URL = "http://localhost:3000/api"
+BASE_URL = "http://localhost:3002/api"
 
 def test_endpoint(endpoint, method="GET", data=None):
     url = f"{BASE_URL}/{endpoint}"
