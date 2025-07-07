@@ -30,30 +30,72 @@ def print_test_result(test_name, success, response=None, error=None):
 def create_test_project():
     print("\nCreating a test project...")
     
-    # Since we can't actually upload files in this test environment,
-    # we'll simulate a project creation with mock data
+    # Create a test user first
+    user_id = TEST_USER_ID
     
-    # In a real test, we would use:
-    # files = {
-    #     'video': ('test_video.mp4', open('test_video.mp4', 'rb'), 'video/mp4'),
-    #     'image': ('test_image.jpg', open('test_image.jpg', 'rb'), 'image/jpeg'),
-    #     'audio': ('test_audio.mp3', open('test_audio.mp3', 'rb'), 'audio/mpeg')
-    # }
-    # data = {
-    #     'title': TEST_PROJECT_TITLE,
-    #     'description': TEST_PROJECT_DESCRIPTION,
-    #     'userId': TEST_USER_ID
-    # }
-    # response = requests.post(f"{BACKEND_URL}/projects", files=files, data=data)
+    # Create a project using the API
+    url = f"{BACKEND_URL}/projects"
     
-    # For testing purposes, we'll create a project directly in the database
-    # This is a mock response that simulates what we'd get from the API
-    mock_project_id = str(uuid.uuid4())
-    mock_response = {
-        "success": True,
-        "project": {
+    # Since we can't upload real files in this test environment,
+    # we'll use the API without file uploads for testing
+    payload = {
+        "title": TEST_PROJECT_TITLE,
+        "description": TEST_PROJECT_DESCRIPTION,
+        "userId": user_id,
+        "mockData": True  # This is a flag to indicate this is a test
+    }
+    
+    try:
+        response = requests.post(url, json=payload)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("success"):
+                print(f"Created test project with ID: {result['project']['id']}")
+                return result["project"]
+            else:
+                print(f"Failed to create project: {result.get('error')}")
+                # Fall back to mock project
+                mock_project_id = str(uuid.uuid4())
+                mock_project = {
+                    "id": mock_project_id,
+                    "user_id": user_id,
+                    "title": TEST_PROJECT_TITLE,
+                    "description": TEST_PROJECT_DESCRIPTION,
+                    "sample_video_url": f"https://example.com/videos/{mock_project_id}.mp4",
+                    "character_image_url": f"https://example.com/images/{mock_project_id}.jpg",
+                    "audio_file_url": f"https://example.com/audio/{mock_project_id}.mp3",
+                    "status": "created",
+                    "created_at": datetime.now().isoformat(),
+                    "updated_at": datetime.now().isoformat()
+                }
+                print(f"Using mock project with ID: {mock_project_id}")
+                return mock_project
+        else:
+            print(f"Failed to create project: Status code {response.status_code}")
+            # Fall back to mock project
+            mock_project_id = str(uuid.uuid4())
+            mock_project = {
+                "id": mock_project_id,
+                "user_id": user_id,
+                "title": TEST_PROJECT_TITLE,
+                "description": TEST_PROJECT_DESCRIPTION,
+                "sample_video_url": f"https://example.com/videos/{mock_project_id}.mp4",
+                "character_image_url": f"https://example.com/images/{mock_project_id}.jpg",
+                "audio_file_url": f"https://example.com/audio/{mock_project_id}.mp3",
+                "status": "created",
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat()
+            }
+            print(f"Using mock project with ID: {mock_project_id}")
+            return mock_project
+    except Exception as e:
+        print(f"Exception creating project: {str(e)}")
+        # Fall back to mock project
+        mock_project_id = str(uuid.uuid4())
+        mock_project = {
             "id": mock_project_id,
-            "user_id": TEST_USER_ID,
+            "user_id": user_id,
             "title": TEST_PROJECT_TITLE,
             "description": TEST_PROJECT_DESCRIPTION,
             "sample_video_url": f"https://example.com/videos/{mock_project_id}.mp4",
@@ -63,10 +105,8 @@ def create_test_project():
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat()
         }
-    }
-    
-    print(f"Created test project with ID: {mock_project_id}")
-    return mock_response["project"]
+        print(f"Using mock project with ID: {mock_project_id}")
+        return mock_project
 
 # Test 1: Video Analysis API
 def test_video_analysis_api(project_id):
