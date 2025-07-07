@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
+import { videoGenerationService, VideoGenerationPlan } from '@/lib/video-generation-service'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(request: NextRequest) {
