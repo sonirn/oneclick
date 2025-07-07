@@ -56,10 +56,10 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.id
+    const { id: projectId } = await params
 
     // Get project details first
     const projectQuery = 'SELECT * FROM projects WHERE id = $1'
