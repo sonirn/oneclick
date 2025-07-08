@@ -74,428 +74,238 @@ async function validateAPKWithAI(apkBuffer: Buffer, clientId: string): Promise<{
   }
 }
 
-async function modifyManifest(manifestXml: string, mode: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    parseString(manifestXml, (err, result) => {
-      if (err) return reject(err)
+async function modifyManifestWithAI(manifestXml: string, mode: string, aiAnalysis: AiAnalysisResult | null): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // First get AI optimization if available
+      let aiOptimizedManifest = manifestXml
+      if (aiAnalysis) {
+        try {
+          sendLog("ai-optimizer", "🤖 Applying AI-optimized manifest modifications...", "info")
+          aiOptimizedManifest = await a4fClient.optimizeManifest(manifestXml, mode)
+          sendLog("ai-optimizer", "✅ AI manifest optimization completed", "success")
+        } catch (aiError) {
+          sendLog("ai-optimizer", `⚠️ AI optimization failed, using standard approach: ${aiError.message}`, "warning")
+          aiOptimizedManifest = manifestXml
+        }
+      }
 
-      // Ensure manifest structure
-      if (!result.manifest) result.manifest = {}
-      if (!result.manifest.application) result.manifest.application = [{}]
-      if (!result.manifest['uses-permission']) result.manifest['uses-permission'] = []
+      parseString(aiOptimizedManifest, (err, result) => {
+        if (err) return reject(err)
 
-      // Comprehensive debug mode permissions for API monitoring and development
-      const debugPermissions = [
-        // Network and Internet
-        { '$': { 'android:name': 'android.permission.INTERNET' } },
-        { '$': { 'android:name': 'android.permission.ACCESS_NETWORK_STATE' } },
-        { '$': { 'android:name': 'android.permission.ACCESS_WIFI_STATE' } },
-        { '$': { 'android:name': 'android.permission.CHANGE_WIFI_STATE' } },
-        { '$': { 'android:name': 'android.permission.CHANGE_NETWORK_STATE' } },
-        
-        // Storage for logging and debugging
-        { '$': { 'android:name': 'android.permission.WRITE_EXTERNAL_STORAGE' } },
-        { '$': { 'android:name': 'android.permission.READ_EXTERNAL_STORAGE' } },
-        { '$': { 'android:name': 'android.permission.MANAGE_EXTERNAL_STORAGE' } },
-        
-        // Development and debugging
-        { '$': { 'android:name': 'android.permission.SET_DEBUG_APP' } },
-        { '$': { 'android:name': 'android.permission.DUMP' } },
-        { '$': { 'android:name': 'android.permission.READ_LOGS' } },
-        { '$': { 'android:name': 'android.permission.WRITE_SECURE_SETTINGS' } },
-        
-        // System level access for comprehensive debugging
-        { '$': { 'android:name': 'android.permission.SYSTEM_ALERT_WINDOW' } },
-        { '$': { 'android:name': 'android.permission.WRITE_SETTINGS' } },
-        { '$': { 'android:name': 'android.permission.GET_TASKS' } },
-        { '$': { 'android:name': 'android.permission.REAL_GET_TASKS' } },
-        
-        // API monitoring and interception
-        { '$': { 'android:name': 'android.permission.PACKAGE_USAGE_STATS' } },
-        { '$': { 'android:name': 'android.permission.ACCESS_SUPERUSER' } },
-        { '$': { 'android:name': 'android.permission.CAPTURE_AUDIO_OUTPUT' } },
-        { '$': { 'android:name': 'android.permission.CAPTURE_SECURE_VIDEO_OUTPUT' } },
-        
-        // Location for testing location-based APIs
-        { '$': { 'android:name': 'android.permission.ACCESS_FINE_LOCATION' } },
-        { '$': { 'android:name': 'android.permission.ACCESS_COARSE_LOCATION' } },
-        { '$': { 'android:name': 'android.permission.ACCESS_BACKGROUND_LOCATION' } },
-        
-        // Camera and microphone for testing media APIs
-        { '$': { 'android:name': 'android.permission.CAMERA' } },
-        { '$': { 'android:name': 'android.permission.RECORD_AUDIO' } },
-        
-        // Contacts and accounts for testing social APIs
-        { '$': { 'android:name': 'android.permission.READ_CONTACTS' } },
-        { '$': { 'android:name': 'android.permission.WRITE_CONTACTS' } },
-        { '$': { 'android:name': 'android.permission.GET_ACCOUNTS' } },
-        { '$': { 'android:name': 'android.permission.MANAGE_ACCOUNTS' } },
-        
-        // Phone and SMS for testing communication APIs
-        { '$': { 'android:name': 'android.permission.READ_PHONE_STATE' } },
-        { '$': { 'android:name': 'android.permission.CALL_PHONE' } },
-        { '$': { 'android:name': 'android.permission.SEND_SMS' } },
-        { '$': { 'android:name': 'android.permission.RECEIVE_SMS' } },
-        
-        // Calendar for testing calendar APIs
-        { '$': { 'android:name': 'android.permission.READ_CALENDAR' } },
-        { '$': { 'android:name': 'android.permission.WRITE_CALENDAR' } },
-        
-        // ===== ADVANCED REVERSE ENGINEERING PERMISSIONS =====
-        // Dynamic Analysis & Runtime Manipulation
-        { '$': { 'android:name': 'android.permission.QUERY_ALL_PACKAGES' } },
-        { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS' } },
-        { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS_FULL' } },
-        { '$': { 'android:name': 'android.permission.MANAGE_USERS' } },
-        { '$': { 'android:name': 'android.permission.CREATE_USERS' } },
-        
-        // Memory Analysis & Process Manipulation
-        { '$': { 'android:name': 'android.permission.FORCE_STOP_PACKAGES' } },
-        { '$': { 'android:name': 'android.permission.KILL_BACKGROUND_PROCESSES' } },
-        { '$': { 'android:name': 'android.permission.RESTART_PACKAGES' } },
-        { '$': { 'android:name': 'android.permission.GET_PACKAGE_SIZE' } },
-        { '$': { 'android:name': 'android.permission.CLEAR_APP_CACHE' } },
-        
-        // Advanced System Access
-        { '$': { 'android:name': 'android.permission.MODIFY_PHONE_STATE' } },
-        { '$': { 'android:name': 'android.permission.MOUNT_UNMOUNT_FILESYSTEMS' } },
-        { '$': { 'android:name': 'android.permission.MOUNT_FORMAT_FILESYSTEMS' } },
-        { '$': { 'android:name': 'android.permission.ASEC_ACCESS' } },
-        { '$': { 'android:name': 'android.permission.ASEC_CREATE' } },
-        { '$': { 'android:name': 'android.permission.ASEC_DESTROY' } },
-        { '$': { 'android:name': 'android.permission.ASEC_MOUNT_UNMOUNT' } },
-        { '$': { 'android:name': 'android.permission.ASEC_RENAME' } },
-        
-        // Root-Level System Permissions
-        { '$': { 'android:name': 'android.permission.FACTORY_TEST' } },
-        { '$': { 'android:name': 'android.permission.MASTER_CLEAR' } },
-        { '$': { 'android:name': 'android.permission.REBOOT' } },
-        { '$': { 'android:name': 'android.permission.SET_TIME' } },
-        { '$': { 'android:name': 'android.permission.SET_TIME_ZONE' } },
-        
-        // Advanced Debugging & Profiling
-        { '$': { 'android:name': 'android.permission.DIAGNOSTIC' } },
-        { '$': { 'android:name': 'android.permission.STATUS_BAR' } },
-        { '$': { 'android:name': 'android.permission.EXPAND_STATUS_BAR' } },
-        { '$': { 'android:name': 'android.permission.BROADCAST_STICKY' } },
-        { '$': { 'android:name': 'android.permission.CHANGE_CONFIGURATION' } },
-        
-        // Hardware Control for Advanced Testing
-        { '$': { 'android:name': 'android.permission.HARDWARE_TEST' } },
-        { '$': { 'android:name': 'android.permission.FLASHLIGHT' } },
-        { '$': { 'android:name': 'android.permission.VIBRATE' } },
-        { '$': { 'android:name': 'android.permission.WAKE_LOCK' } },
-        { '$': { 'android:name': 'android.permission.DISABLE_KEYGUARD' } },
-        
-        // Advanced Network Analysis
-        { '$': { 'android:name': 'android.permission.CONTROL_LOCATION_UPDATES' } },
-        { '$': { 'android:name': 'android.permission.ACCESS_LOCATION_EXTRA_COMMANDS' } },
-        { '$': { 'android:name': 'android.permission.INSTALL_LOCATION_PROVIDER' } },
-        { '$': { 'android:name': 'android.permission.BIND_APPWIDGET' } },
-        { '$': { 'android:name': 'android.permission.BIND_DEVICE_ADMIN' } },
-        
-        // Security Testing & Bypass
-        { '$': { 'android:name': 'android.permission.DEVICE_POWER' } },
-        { '$': { 'android:name': 'android.permission.INTERNAL_SYSTEM_WINDOW' } },
-        { '$': { 'android:name': 'android.permission.INJECT_EVENTS' } },
-        { '$': { 'android:name': 'android.permission.MODIFY_AUDIO_SETTINGS' } },
-        { '$': { 'android:name': 'android.permission.RECORD_AUDIO' } },
-        
-        // Pro-Level Bypass Permissions
-        { '$': { 'android:name': 'android.permission.WRITE_APN_SETTINGS' } },
-        { '$': { 'android:name': 'android.permission.WRITE_GSERVICES' } },
-        { '$': { 'android:name': 'android.permission.READ_FRAME_BUFFER' } },
-        { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH' } },
-        { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH_CONTROL' } },
-        
-        // Advanced Payment & Billing Bypass
-        { '$': { 'android:name': 'com.android.vending.BILLING' } },
-        { '$': { 'android:name': 'com.android.vending.CHECK_LICENSE' } },
-        { '$': { 'android:name': 'com.google.android.c2dm.permission.RECEIVE' } },
-        { '$': { 'android:name': 'com.google.android.providers.gsf.permission.READ_GSERVICES' } },
-        
-        // Anti-Detection & Evasion
-        { '$': { 'android:name': 'android.permission.CHANGE_COMPONENT_ENABLED_STATE' } },
-        { '$': { 'android:name': 'android.permission.INSTALL_PACKAGES' } },
-        { '$': { 'android:name': 'android.permission.DELETE_PACKAGES' } },
-        { '$': { 'android:name': 'android.permission.CLEAR_APP_USER_DATA' } },
-        { '$': { 'android:name': 'android.permission.DELETE_CACHE_FILES' } },
-        { '$': { 'android:name': 'android.permission.MOVE_PACKAGE' } },
-      ]
+        // Ensure manifest structure
+        if (!result.manifest) result.manifest = {}
+        if (!result.manifest.application) result.manifest.application = [{}]
+        if (!result.manifest['uses-permission']) result.manifest['uses-permission'] = []
 
-      // Add sandbox-specific permissions for advanced reverse engineering
-      if (mode === "sandbox" || mode === "combined") {
-        debugPermissions.push(
-          // Advanced Billing and Payment Bypass
-          { '$': { 'android:name': 'com.android.vending.BILLING' } },
-          { '$': { 'android:name': 'com.android.vending.CHECK_LICENSE' } },
-          { '$': { 'android:name': 'com.google.android.c2dm.permission.RECEIVE' } },
-          { '$': { 'android:name': 'com.google.android.c2dm.permission.SEND' } },
-          { '$': { 'android:name': 'com.google.android.providers.gsf.permission.READ_GSERVICES' } },
+        // Enhanced debug mode permissions with AI recommendations
+        const debugPermissions = [
+          // Core Network and Internet (Essential for AI analysis)
+          { '$': { 'android:name': 'android.permission.INTERNET' } },
+          { '$': { 'android:name': 'android.permission.ACCESS_NETWORK_STATE' } },
+          { '$': { 'android:name': 'android.permission.ACCESS_WIFI_STATE' } },
+          { '$': { 'android:name': 'android.permission.CHANGE_WIFI_STATE' } },
+          { '$': { 'android:name': 'android.permission.CHANGE_NETWORK_STATE' } },
           
-          // Advanced Security Testing & Bypass
-          { '$': { 'android:name': 'android.permission.BIND_ACCESSIBILITY_SERVICE' } },
-          { '$': { 'android:name': 'android.permission.BIND_DEVICE_ADMIN' } },
-          { '$': { 'android:name': 'android.permission.BIND_VPN_SERVICE' } },
-          { '$': { 'android:name': 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE' } },
-          { '$': { 'android:name': 'android.permission.BIND_WALLPAPER' } },
+          // Enhanced Storage for AI logs and analysis
+          { '$': { 'android:name': 'android.permission.WRITE_EXTERNAL_STORAGE' } },
+          { '$': { 'android:name': 'android.permission.READ_EXTERNAL_STORAGE' } },
+          { '$': { 'android:name': 'android.permission.MANAGE_EXTERNAL_STORAGE' } },
           
-          // Pro-Level System Manipulation
-          { '$': { 'android:name': 'android.permission.ACCESS_SUPERUSER' } },
+          // AI-Enhanced Development and debugging
+          { '$': { 'android:name': 'android.permission.SET_DEBUG_APP' } },
+          { '$': { 'android:name': 'android.permission.DUMP' } },
+          { '$': { 'android:name': 'android.permission.READ_LOGS' } },
           { '$': { 'android:name': 'android.permission.WRITE_SECURE_SETTINGS' } },
-          { '$': { 'android:name': 'android.permission.CHANGE_COMPONENT_ENABLED_STATE' } },
-          { '$': { 'android:name': 'android.permission.INSTALL_PACKAGES' } },
-          { '$': { 'android:name': 'android.permission.DELETE_PACKAGES' } },
-          { '$': { 'android:name': 'android.permission.CLEAR_APP_USER_DATA' } },
-          { '$': { 'android:name': 'android.permission.DELETE_CACHE_FILES' } },
-          { '$': { 'android:name': 'android.permission.MOVE_PACKAGE' } },
           
-          // Advanced Anti-Detection
-          { '$': { 'android:name': 'android.permission.FORCE_STOP_PACKAGES' } },
-          { '$': { 'android:name': 'android.permission.KILL_BACKGROUND_PROCESSES' } },
-          { '$': { 'android:name': 'android.permission.RESTART_PACKAGES' } },
-          { '$': { 'android:name': 'android.permission.GET_PACKAGE_SIZE' } },
-          { '$': { 'android:name': 'android.permission.CLEAR_APP_CACHE' } },
+          // AI Analysis and Monitoring
+          { '$': { 'android:name': 'android.permission.SYSTEM_ALERT_WINDOW' } },
+          { '$': { 'android:name': 'android.permission.WRITE_SETTINGS' } },
+          { '$': { 'android:name': 'android.permission.GET_TASKS' } },
+          { '$': { 'android:name': 'android.permission.REAL_GET_TASKS' } },
+          { '$': { 'android:name': 'android.permission.PACKAGE_USAGE_STATS' } },
           
-          // Root-Level Access Simulation
-          { '$': { 'android:name': 'android.permission.FACTORY_TEST' } },
-          { '$': { 'android:name': 'android.permission.MASTER_CLEAR' } },
-          { '$': { 'android:name': 'android.permission.REBOOT' } },
-          { '$': { 'android:name': 'android.permission.SET_TIME' } },
-          { '$': { 'android:name': 'android.permission.SET_TIME_ZONE' } },
+          // AI-Powered Security Testing
+          { '$': { 'android:name': 'android.permission.ACCESS_SUPERUSER' } },
+          { '$': { 'android:name': 'android.permission.CAPTURE_AUDIO_OUTPUT' } },
+          { '$': { 'android:name': 'android.permission.CAPTURE_SECURE_VIDEO_OUTPUT' } },
           
-          // Advanced Hardware Control
-          { '$': { 'android:name': 'android.permission.HARDWARE_TEST' } },
-          { '$': { 'android:name': 'android.permission.DIAGNOSTIC' } },
-          { '$': { 'android:name': 'android.permission.STATUS_BAR' } },
-          { '$': { 'android:name': 'android.permission.EXPAND_STATUS_BAR' } },
-          { '$': { 'android:name': 'android.permission.BROADCAST_STICKY' } },
-          { '$': { 'android:name': 'android.permission.CHANGE_CONFIGURATION' } },
+          // Location for AI-based geolocation testing
+          { '$': { 'android:name': 'android.permission.ACCESS_FINE_LOCATION' } },
+          { '$': { 'android:name': 'android.permission.ACCESS_COARSE_LOCATION' } },
+          { '$': { 'android:name': 'android.permission.ACCESS_BACKGROUND_LOCATION' } },
           
-          // Memory and Process Analysis
-          { '$': { 'android:name': 'android.permission.DEVICE_POWER' } },
-          { '$': { 'android:name': 'android.permission.INTERNAL_SYSTEM_WINDOW' } },
-          { '$': { 'android:name': 'android.permission.INJECT_EVENTS' } },
-          { '$': { 'android:name': 'android.permission.READ_FRAME_BUFFER' } },
+          // Media for AI multimedia analysis
+          { '$': { 'android:name': 'android.permission.CAMERA' } },
+          { '$': { 'android:name': 'android.permission.RECORD_AUDIO' } },
           
-          // Advanced Network Manipulation
-          { '$': { 'android:name': 'android.permission.CONTROL_LOCATION_UPDATES' } },
-          { '$': { 'android:name': 'android.permission.ACCESS_LOCATION_EXTRA_COMMANDS' } },
-          { '$': { 'android:name': 'android.permission.INSTALL_LOCATION_PROVIDER' } },
-          { '$': { 'android:name': 'android.permission.WRITE_APN_SETTINGS' } },
-          { '$': { 'android:name': 'android.permission.WRITE_GSERVICES' } },
+          // Contacts and accounts for AI social analysis
+          { '$': { 'android:name': 'android.permission.READ_CONTACTS' } },
+          { '$': { 'android:name': 'android.permission.WRITE_CONTACTS' } },
+          { '$': { 'android:name': 'android.permission.GET_ACCOUNTS' } },
+          { '$': { 'android:name': 'android.permission.MANAGE_ACCOUNTS' } },
           
-          // Pro-Level Bypass Features
-          { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH' } },
-          { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH_CONTROL' } },
-          { '$': { 'android:name': 'android.permission.QUERY_ALL_PACKAGES' } },
-          { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS' } },
-          { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS_FULL' } },
-          { '$': { 'android:name': 'android.permission.MANAGE_USERS' } },
-          { '$': { 'android:name': 'android.permission.CREATE_USERS' } },
-        )
-      }
+          // Communication for AI communication analysis
+          { '$': { 'android:name': 'android.permission.READ_PHONE_STATE' } },
+          { '$': { 'android:name': 'android.permission.CALL_PHONE' } },
+          { '$': { 'android:name': 'android.permission.SEND_SMS' } },
+          { '$': { 'android:name': 'android.permission.RECEIVE_SMS' } },
+          
+          // Calendar for AI temporal analysis
+          { '$': { 'android:name': 'android.permission.READ_CALENDAR' } },
+          { '$': { 'android:name': 'android.permission.WRITE_CALENDAR' } },
+        ]
 
-      // Add all permissions, avoiding duplicates
-      const existingPermissions = result.manifest['uses-permission'].map(p => p?.['$']?.['android:name']).filter(Boolean)
-      debugPermissions.forEach(permission => {
-        const permissionName = permission['$']['android:name']
-        if (!existingPermissions.includes(permissionName)) {
-          result.manifest['uses-permission'].push(permission)
+        // Add AI-specific permissions based on analysis
+        if (aiAnalysis?.conversion_strategy.recommended_mode === 'sandbox' || mode === 'sandbox' || mode === 'combined') {
+          debugPermissions.push(
+            // AI-Enhanced Security Bypass
+            { '$': { 'android:name': 'com.android.vending.BILLING' } },
+            { '$': { 'android:name': 'com.android.vending.CHECK_LICENSE' } },
+            { '$': { 'android:name': 'com.google.android.c2dm.permission.RECEIVE' } },
+            { '$': { 'android:name': 'com.google.android.providers.gsf.permission.READ_GSERVICES' } },
+            
+            // AI-Powered Advanced Analysis
+            { '$': { 'android:name': 'android.permission.BIND_ACCESSIBILITY_SERVICE' } },
+            { '$': { 'android:name': 'android.permission.BIND_DEVICE_ADMIN' } },
+            { '$': { 'android:name': 'android.permission.BIND_VPN_SERVICE' } },
+            { '$': { 'android:name': 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE' } },
+            
+            // AI Root-Level Analysis
+            { '$': { 'android:name': 'android.permission.FACTORY_TEST' } },
+            { '$': { 'android:name': 'android.permission.MASTER_CLEAR' } },
+            { '$': { 'android:name': 'android.permission.REBOOT' } },
+            { '$': { 'android:name': 'android.permission.SET_TIME' } },
+            
+            // AI Memory and Process Analysis
+            { '$': { 'android:name': 'android.permission.FORCE_STOP_PACKAGES' } },
+            { '$': { 'android:name': 'android.permission.KILL_BACKGROUND_PROCESSES' } },
+            { '$': { 'android:name': 'android.permission.RESTART_PACKAGES' } },
+            { '$': { 'android:name': 'android.permission.GET_PACKAGE_SIZE' } },
+            { '$': { 'android:name': 'android.permission.CLEAR_APP_CACHE' } },
+          )
         }
-      })
 
-      // Configure application for maximum debugging and reverse engineering
-      const appConfig = {
-        'android:debuggable': 'true',
-        'android:allowBackup': 'true',
-        'android:testOnly': mode === 'sandbox' ? 'true' : 'false',
-        'android:extractNativeLibs': 'true',
-        'android:usesCleartextTraffic': 'true',
-        'android:networkSecurityConfig': '@xml/network_security_config',
-        'android:largeHeap': 'true',
-        'android:hardwareAccelerated': 'true',
-        'android:vmSafeMode': 'false',
-        'android:allowNativeHeapPointerTagging': 'false',
-        'android:requestLegacyExternalStorage': 'true',
-        'android:preserveLegacyExternalStorage': 'true',
-        'android:hasFragileUserData': 'true',
-        'android:allowAudioPlaybackCapture': 'true',
-        'android:fullBackupContent': 'true',
-        'android:backupAgent': 'com.reverse.BackupAgent',
-        'android:killAfterRestore': 'false',
-        'android:restoreAnyVersion': 'true',
-        'android:supportsRtl': 'true',
-        'android:maxAspectRatio': '2.4',
-        'android:resizeableActivity': 'true',
-        'android:supportsMultipleDisplays': 'true',
-        'android:enableOnBackInvokedCallback': 'true',
-      }
-
-      if (mode === 'sandbox' || mode === 'combined') {
-        appConfig['android:name'] = 'com.reverse.AdvancedReverseEngineeringApplication'
-      } else {
-        appConfig['android:name'] = 'com.debug.ApiMonitorApplication'
-      }
-
-      Object.assign(result.manifest.application[0], appConfig)
-
-      // Add comprehensive metadata for API monitoring
-      if (!result.manifest.application[0]['meta-data']) {
-        result.manifest.application[0]['meta-data'] = []
-      }
-
-      const debugMetadata = [
-        { '$': { 'android:name': 'debug.mode.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'api.monitoring.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'network.logging.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'http.interceptor.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'ssl.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'proxy.support.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'detailed.logging.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'performance.monitoring.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'memory.debugging.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'thread.monitoring.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'database.logging.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'exception.reporting.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'debug.overlay.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'api.response.caching.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'request.replay.enabled', 'android:value': 'true' } },
-        
-        // ===== ADVANCED REVERSE ENGINEERING METADATA =====
-        // Dynamic Analysis & Runtime Manipulation
-        { '$': { 'android:name': 'reverse.engineering.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'method.hooking.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'runtime.manipulation.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'bytecode.modification.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'dex.analysis.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'native.library.analysis.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'obfuscation.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'dynamic.code.analysis.enabled', 'android:value': 'true' } },
-        
-        // Pro-Level Security Bypass
-        { '$': { 'android:name': 'anti.debugging.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'root.detection.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'tamper.detection.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'integrity.check.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'anti.emulator.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'certificate.pinning.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'ssl.unpinning.advanced.enabled', 'android:value': 'true' } },
-        
-        // Advanced Payment & License Bypass
-        { '$': { 'android:name': 'license.verification.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'subscription.validation.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'payment.system.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'trial.period.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'feature.unlock.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'piracy.protection.bypass.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'drm.bypass.enabled', 'android:value': 'true' } },
-        
-        // Advanced Analysis Features
-        { '$': { 'android:name': 'memory.dump.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'heap.analysis.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'stack.trace.analysis.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'method.tracing.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'api.call.pattern.analysis.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'vulnerability.scanning.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'security.assessment.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'performance.profiling.enabled', 'android:value': 'true' } },
-        
-        // Frida Integration & Advanced Hooking
-        { '$': { 'android:name': 'frida.integration.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'xposed.compatibility.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'substrate.hooking.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'cydia.substrate.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'advanced.hooking.framework.enabled', 'android:value': 'true' } },
-        
-        // Real-time Analysis
-        { '$': { 'android:name': 'real.time.analysis.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'continuous.monitoring.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'automated.exploitation.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'vulnerability.exploitation.enabled', 'android:value': 'true' } },
-        { '$': { 'android:name': 'advanced.reporting.enabled', 'android:value': 'true' } },
-      ]
-
-      if (mode === 'sandbox' || mode === 'combined') {
-        debugMetadata.push(
-          { '$': { 'android:name': 'billing.debug.enabled', 'android:value': 'true' } },
-          { '$': { 'android:name': 'payment.mock.enabled', 'android:value': 'true' } },
-          { '$': { 'android:name': 'license.bypass.enabled', 'android:value': 'true' } },
-          { '$': { 'android:name': 'security.testing.enabled', 'android:value': 'true' } },
-        )
-      }
-
-      result.manifest.application[0]['meta-data'] = [
-        ...result.manifest.application[0]['meta-data'],
-        ...debugMetadata
-      ]
-
-      // Add debug services for API monitoring
-      if (!result.manifest.application[0]['service']) {
-        result.manifest.application[0]['service'] = []
-      }
-
-      const debugServices = [
-        {
-          '$': {
-            'android:name': 'com.debug.ApiMonitorService',
-            'android:enabled': 'true',
-            'android:exported': 'false',
-            'android:process': ':monitor'
+        // Add all permissions, avoiding duplicates
+        const existingPermissions = result.manifest['uses-permission'].map(p => p?.['$']?.['android:name']).filter(Boolean)
+        debugPermissions.forEach(permission => {
+          const permissionName = permission['$']['android:name']
+          if (!existingPermissions.includes(permissionName)) {
+            result.manifest['uses-permission'].push(permission)
           }
-        },
-        {
-          '$': {
-            'android:name': 'com.debug.NetworkInterceptorService',
-            'android:enabled': 'true',
-            'android:exported': 'false',
-            'android:process': ':network'
-          }
-        },
-        {
-          '$': {
-            'android:name': 'com.debug.LoggingService',
-            'android:enabled': 'true',
-            'android:exported': 'false',
-            'android:process': ':logging'
-          }
+        })
+
+        // AI-Enhanced application configuration
+        const appConfig = {
+          'android:debuggable': 'true',
+          'android:allowBackup': 'true',
+          'android:testOnly': (mode === 'sandbox' || mode === 'combined') ? 'true' : 'false',
+          'android:extractNativeLibs': 'true',
+          'android:usesCleartextTraffic': 'true',
+          'android:networkSecurityConfig': '@xml/network_security_config',
+          'android:largeHeap': 'true',
+          'android:hardwareAccelerated': 'true',
+          'android:vmSafeMode': 'false',
+          'android:allowNativeHeapPointerTagging': 'false',
+          'android:requestLegacyExternalStorage': 'true',
+          'android:preserveLegacyExternalStorage': 'true',
+          'android:hasFragileUserData': 'true',
+          'android:allowAudioPlaybackCapture': 'true',
+          'android:fullBackupContent': 'true',
+          'android:backupAgent': 'com.ai.enhanced.BackupAgent',
+          'android:killAfterRestore': 'false',
+          'android:restoreAnyVersion': 'true',
+          'android:supportsRtl': 'true',
+          'android:maxAspectRatio': '2.4',
+          'android:resizeableActivity': 'true',
+          'android:supportsMultipleDisplays': 'true',
+          'android:enableOnBackInvokedCallback': 'true',
         }
-      ]
 
-      result.manifest.application[0]['service'] = [
-        ...result.manifest.application[0]['service'],
-        ...debugServices
-      ]
+        // AI-specific application naming
+        if (mode === 'sandbox' || mode === 'combined') {
+          appConfig['android:name'] = 'com.ai.enhanced.AdvancedReverseEngineeringApplication'
+        } else {
+          appConfig['android:name'] = 'com.ai.enhanced.ApiMonitorApplication'
+        }
 
-      // Add debug receivers for system events
-      if (!result.manifest.application[0]['receiver']) {
-        result.manifest.application[0]['receiver'] = []
-      }
+        Object.assign(result.manifest.application[0], appConfig)
 
-      const debugReceivers = [
-        {
-          '$': {
-            'android:name': 'com.debug.NetworkStateReceiver',
-            'android:enabled': 'true',
-            'android:exported': 'false'
+        // Add AI-enhanced metadata
+        if (!result.manifest.application[0]['meta-data']) {
+          result.manifest.application[0]['meta-data'] = []
+        }
+
+        const aiMetadata = [
+          { '$': { 'android:name': 'ai.analysis.enabled', 'android:value': 'true' } },
+          { '$': { 'android:name': 'ai.model.primary', 'android:value': process.env.A4F_ANALYSIS_MODEL || 'gpt-4o' } },
+          { '$': { 'android:name': 'ai.model.coding', 'android:value': process.env.A4F_CODING_MODEL || 'claude-3-5-sonnet' } },
+          { '$': { 'android:name': 'ai.error.handling', 'android:value': 'true' } },
+          { '$': { 'android:name': 'ai.security.analysis', 'android:value': 'true' } },
+          { '$': { 'android:name': 'ai.performance.optimization', 'android:value': 'true' } },
+          { '$': { 'android:name': 'ai.real.time.monitoring', 'android:value': 'true' } },
+          { '$': { 'android:name': 'ai.vulnerability.detection', 'android:value': 'true' } },
+          { '$': { 'android:name': 'ai.behavioral.analysis', 'android:value': 'true' } },
+          { '$': { 'android:name': 'ai.pattern.recognition', 'android:value': 'true' } },
+        ]
+
+        // Add AI analysis results as metadata if available
+        if (aiAnalysis) {
+          aiMetadata.push(
+            { '$': { 'android:name': 'ai.risk.level', 'android:value': aiAnalysis.security_assessment.risk_level } },
+            { '$': { 'android:name': 'ai.recommended.mode', 'android:value': aiAnalysis.conversion_strategy.recommended_mode } },
+            { '$': { 'android:name': 'ai.analysis.timestamp', 'android:value': new Date().toISOString() } },
+          )
+        }
+
+        result.manifest.application[0]['meta-data'] = [
+          ...result.manifest.application[0]['meta-data'],
+          ...aiMetadata
+        ]
+
+        // Add AI-enhanced services
+        if (!result.manifest.application[0]['service']) {
+          result.manifest.application[0]['service'] = []
+        }
+
+        const aiServices = [
+          {
+            '$': {
+              'android:name': 'com.ai.enhanced.AiAnalysisService',
+              'android:enabled': 'true',
+              'android:exported': 'false',
+              'android:process': ':ai_analysis'
+            }
           },
-          'intent-filter': [{
-            'action': [
-              { '$': { 'android:name': 'android.net.conn.CONNECTIVITY_CHANGE' } },
-              { '$': { 'android:name': 'android.net.wifi.STATE_CHANGE' } }
-            ]
-          }]
-        }
-      ]
+          {
+            '$': {
+              'android:name': 'com.ai.enhanced.SecurityMonitorService',
+              'android:enabled': 'true',
+              'android:exported': 'false',
+              'android:process': ':security_monitor'
+            }
+          },
+          {
+            '$': {
+              'android:name': 'com.ai.enhanced.ErrorHandlingService',
+              'android:enabled': 'true',
+              'android:exported': 'false',
+              'android:process': ':error_handler'
+            }
+          }
+        ]
 
-      result.manifest.application[0]['receiver'] = [
-        ...result.manifest.application[0]['receiver'],
-        ...debugReceivers
-      ]
+        result.manifest.application[0]['service'] = [
+          ...result.manifest.application[0]['service'],
+          ...aiServices
+        ]
 
-      const builder = new Builder()
-      resolve(builder.buildObject(result))
-    })
+        const builder = new Builder()
+        resolve(builder.buildObject(result))
+      })
+    } catch (error) {
+      reject(error)
+    }
   })
 }
 
