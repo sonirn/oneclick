@@ -440,7 +440,8 @@ async function modifyResources(resourcesXml: string, mode: string): Promise<stri
 async function processAPK(apkBuffer: Buffer, mode: string, clientId: string): Promise<Buffer> {
   const zip = new AdmZip(apkBuffer)
   
-  sendLog(clientId, `🔧 Processing APK for ${mode} mode with comprehensive debugging features...`, "info")
+  sendLog(clientId, `🔧 Processing APK for ${mode} mode with ADVANCED REVERSE ENGINEERING features...`, "info")
+  sendLog(clientId, `🛡️ Adding pro-level security bypass and analysis capabilities...`, "info")
 
   // 1. Process AndroidManifest.xml
   const manifestEntry = zip.getEntry("AndroidManifest.xml")
