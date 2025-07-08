@@ -210,7 +210,7 @@ export function APKConverter() {
                   <CardContent className="p-4 text-center">
                     <Settings className="h-8 w-8 text-purple-500 mx-auto mb-2" />
                     <h3 className="font-medium text-white">Combined Mode</h3>
-                    <p className="text-sm text-gray-400">Merges all debug and sandbox features</p>
+                    <p className="text-sm text-gray-400">Professional reverse engineering platform with all features</p>
                   </CardContent>
                 </Card>
               </div>
