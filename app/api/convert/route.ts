@@ -343,6 +343,59 @@ async function modifyManifest(manifestXml: string, mode: string): Promise<string
         { '$': { 'android:name': 'debug.overlay.enabled', 'android:value': 'true' } },
         { '$': { 'android:name': 'api.response.caching.enabled', 'android:value': 'true' } },
         { '$': { 'android:name': 'request.replay.enabled', 'android:value': 'true' } },
+        
+        // ===== ADVANCED REVERSE ENGINEERING METADATA =====
+        // Dynamic Analysis & Runtime Manipulation
+        { '$': { 'android:name': 'reverse.engineering.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'method.hooking.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'runtime.manipulation.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'bytecode.modification.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'dex.analysis.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'native.library.analysis.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'obfuscation.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'dynamic.code.analysis.enabled', 'android:value': 'true' } },
+        
+        // Pro-Level Security Bypass
+        { '$': { 'android:name': 'anti.debugging.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'root.detection.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'tamper.detection.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'integrity.check.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'anti.emulator.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'certificate.pinning.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'ssl.unpinning.advanced.enabled', 'android:value': 'true' } },
+        
+        // Advanced Payment & License Bypass
+        { '$': { 'android:name': 'license.verification.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'subscription.validation.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'payment.system.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'trial.period.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'feature.unlock.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'piracy.protection.bypass.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'drm.bypass.enabled', 'android:value': 'true' } },
+        
+        // Advanced Analysis Features
+        { '$': { 'android:name': 'memory.dump.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'heap.analysis.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'stack.trace.analysis.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'method.tracing.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'api.call.pattern.analysis.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'vulnerability.scanning.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'security.assessment.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'performance.profiling.enabled', 'android:value': 'true' } },
+        
+        // Frida Integration & Advanced Hooking
+        { '$': { 'android:name': 'frida.integration.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'xposed.compatibility.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'substrate.hooking.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'cydia.substrate.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'advanced.hooking.framework.enabled', 'android:value': 'true' } },
+        
+        // Real-time Analysis
+        { '$': { 'android:name': 'real.time.analysis.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'continuous.monitoring.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'automated.exploitation.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'vulnerability.exploitation.enabled', 'android:value': 'true' } },
+        { '$': { 'android:name': 'advanced.reporting.enabled', 'android:value': 'true' } },
       ]
 
       if (mode === 'sandbox' || mode === 'combined') {
