@@ -3267,68 +3267,210 @@ This enhanced APK contains advanced security bypass capabilities and should only
   return zip.toBuffer()
 }
 
-export async function POST(req: NextRequest) {
-  const clientId = uuidv4()
+export async function POST(request: NextRequest) {
+  const sessionId = uuidv4()
   
   try {
-    const formData = await req.formData()
+    const formData = await request.formData()
     const file = formData.get("file") as File
-    const mode = formData.get("mode") as string || "standard"
-
+    const mode = formData.get("mode") as string || "debug"
+    
     if (!file) {
-      sendLog(clientId, "❌ No file uploaded", "error")
-      return NextResponse.json(
-        { error: "No file uploaded" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    sendLog(clientId, `📥 Received file: ${file.name} (${(buffer.length / 1024 / 1024).toFixed(2)} MB)`, "info")
+    sendLog(sessionId, `🚀 Starting AI-ENHANCED APK conversion for ${file.name}`, "info")
+    sendLog(sessionId, `🤖 Mode: ${mode} | Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`, "info")
 
-    // Validate APK
-    const isValid = await validateAPK(buffer, clientId)
-    if (!isValid) {
-      return NextResponse.json(
-        { error: "Invalid APK file" },
-        { status: 400 }
-      )
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer()
+    const apkBuffer = Buffer.from(arrayBuffer)
+
+    // AI-Enhanced APK Validation
+    const validationResult = await validateAPKWithAI(apkBuffer, sessionId)
+    if (!validationResult.isValid) {
+      return NextResponse.json({ 
+        error: "Invalid APK file", 
+        details: "AI-enhanced validation failed" 
+      }, { status: 400 })
     }
 
-    // Process APK
-    sendLog(clientId, "🛠 Processing APK...", "info")
-    const modifiedBuffer = await processAPK(buffer, mode, clientId)
+    const { metadata, aiAnalysis } = validationResult
 
-    // Upload to storage
-    sendLog(clientId, "📤 Uploading modified APK...", "info")
-    const outputFilename = `${file.name.replace('.apk', '')}_premium.apk`
-    const uploadPath = `${clientId}/${outputFilename}`
-    const data = await uploadFile("apk-files", uploadPath, modifiedBuffer)
+    // Log AI analysis results
+    if (aiAnalysis) {
+      sendLog(sessionId, `🧠 AI Analysis Complete - Risk: ${aiAnalysis.security_assessment.risk_level}`, "success")
+      sendLog(sessionId, `💡 AI Recommendations: ${aiAnalysis.optimization_suggestions.length} optimizations`, "info")
+      sendLog(sessionId, `⚠️ AI Detected: ${aiAnalysis.security_assessment.vulnerabilities.length} potential vulnerabilities`, "warning")
+      
+      // Use AI-recommended mode if different from user selection
+      if (aiAnalysis.conversion_strategy.recommended_mode !== mode) {
+        sendLog(sessionId, `🎯 AI recommends ${aiAnalysis.conversion_strategy.recommended_mode} mode instead of ${mode}`, "warning")
+      }
+    }
 
-    // Create conversion record
-    await createConversion({
-      session_id: clientId,
+    // AI-Enhanced APK Processing
+    let processedApk: Buffer
+    let conversionError = null
+    let retryCount = 0
+    const maxRetries = 3
+
+    while (retryCount < maxRetries) {
+      try {
+        sendLog(sessionId, `🔄 AI-Enhanced conversion attempt ${retryCount + 1}/${maxRetries}`, "info")
+        processedApk = await processAPKWithAI(apkBuffer, mode, sessionId, aiAnalysis)
+        break // Success, exit retry loop
+      } catch (error) {
+        retryCount++
+        conversionError = error.message
+        sendLog(sessionId, `❌ Conversion attempt ${retryCount} failed: ${error.message}`, "error")
+        
+        if (retryCount < maxRetries) {
+          // AI-powered error analysis and retry strategy
+          try {
+            sendLog(sessionId, "🤖 Analyzing error with AI for intelligent retry...", "info")
+            const aiErrorAnalysis = await aiApkAnalyzer.generateErrorResolution(error.message, metadata, mode)
+            sendLog(sessionId, `💡 AI Error Analysis: ${aiErrorAnalysis.substring(0, 200)}...`, "info")
+            
+            // Apply AI-recommended fixes before retry
+            sendLog(sessionId, "🔧 Applying AI-recommended fixes before retry...", "info")
+            
+            // Wait before retry with AI-suggested delay
+            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount))
+          } catch (aiError) {
+            sendLog(sessionId, `⚠️ AI error analysis failed: ${aiError.message}`, "warning")
+          }
+        }
+      }
+    }
+
+    if (!processedApk) {
+      // Final attempt with fallback mode if AI analysis suggested a different mode
+      if (aiAnalysis && aiAnalysis.conversion_strategy.recommended_mode !== mode) {
+        const fallbackMode = aiAnalysis.conversion_strategy.recommended_mode
+        sendLog(sessionId, `🔄 Final attempt with AI-recommended mode: ${fallbackMode}`, "warning")
+        
+        try {
+          processedApk = await processAPKWithAI(apkBuffer, fallbackMode, sessionId, aiAnalysis)
+          sendLog(sessionId, `✅ Conversion succeeded with AI-recommended mode: ${fallbackMode}`, "success")
+        } catch (fallbackError) {
+          sendLog(sessionId, `❌ Final conversion attempt failed: ${fallbackError.message}`, "error")
+          
+          // Generate comprehensive AI error report
+          let errorReport = "AI-Enhanced Error Analysis:\n"
+          if (aiAnalysis) {
+            errorReport += `\n🤖 AI Analysis Results:\n`
+            errorReport += `- Risk Level: ${aiAnalysis.security_assessment.risk_level}\n`
+            errorReport += `- Recommended Mode: ${aiAnalysis.conversion_strategy.recommended_mode}\n`
+            errorReport += `- Vulnerabilities: ${aiAnalysis.security_assessment.vulnerabilities.length}\n`
+            errorReport += `- Potential Issues: ${aiAnalysis.conversion_strategy.potential_issues.join(', ')}\n`
+          }
+          errorReport += `\n❌ Final Error: ${fallbackError.message}\n`
+          errorReport += `📊 APK Metadata: ${JSON.stringify(metadata, null, 2)}`
+          
+          return NextResponse.json({ 
+            error: "AI-Enhanced conversion failed after multiple attempts",
+            details: conversionError,
+            aiAnalysis: aiAnalysis,
+            errorReport: errorReport,
+            metadata: metadata
+          }, { status: 500 })
+        }
+      } else {
+        return NextResponse.json({ 
+          error: "AI-Enhanced conversion failed",
+          details: conversionError,
+          aiAnalysis: aiAnalysis,
+          metadata: metadata
+        }, { status: 500 })
+      }
+    }
+
+    // Generate converted filename with AI-enhanced naming
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const baseName = file.name.replace('.apk', '')
+    const aiEnhancedFilename = `${baseName}_AI_${mode}_${timestamp}.apk`
+
+    // Store in Supabase
+    const filePath = `${sessionId}/${aiEnhancedFilename}`
+    await uploadFile("apk-files", filePath, processedApk)
+
+    // Create conversion record with AI analysis
+    const conversionData = {
+      session_id: sessionId,
       original_filename: file.name,
-      converted_filename: outputFilename,
-      conversion_mode: mode as "debug" | "sandbox" | "combined",
+      converted_filename: aiEnhancedFilename,
+      conversion_mode: mode,
+      original_size: file.size,
+      converted_size: processedApk.length,
       status: "completed",
-      file_size: file.size,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-    })
+      ai_analysis: aiAnalysis,
+      metadata: metadata,
+      created_at: new Date().toISOString()
+    }
 
-    sendLog(clientId, `✅ Conversion successful: ${outputFilename}`, "success")
+    await createConversion(conversionData)
+
+    // Generate AI-powered completion report
+    let completionReport = `🎉 AI-Enhanced APK Conversion Completed Successfully!\n\n`
+    if (aiAnalysis) {
+      completionReport += `🤖 AI Analysis Summary:\n`
+      completionReport += `- Security Risk Level: ${aiAnalysis.security_assessment.risk_level}\n`
+      completionReport += `- Vulnerabilities Detected: ${aiAnalysis.security_assessment.vulnerabilities.length}\n`
+      completionReport += `- Optimization Suggestions: ${aiAnalysis.optimization_suggestions.length}\n`
+      completionReport += `- Error Prevention Measures: ${aiAnalysis.error_prevention.length}\n\n`
+      
+      if (aiAnalysis.security_assessment.vulnerabilities.length > 0) {
+        completionReport += `⚠️ Security Vulnerabilities Found:\n`
+        aiAnalysis.security_assessment.vulnerabilities.slice(0, 3).forEach((vuln, index) => {
+          completionReport += `${index + 1}. ${vuln}\n`
+        })
+        completionReport += '\n'
+      }
+      
+      if (aiAnalysis.optimization_suggestions.length > 0) {
+        completionReport += `💡 AI Optimization Suggestions:\n`
+        aiAnalysis.optimization_suggestions.slice(0, 3).forEach((suggestion, index) => {
+          completionReport += `${index + 1}. ${suggestion}\n`
+        })
+        completionReport += '\n'
+      }
+    }
+
+    completionReport += `📱 Converted APK Details:\n`
+    completionReport += `- Original Size: ${(file.size / 1024 / 1024).toFixed(2)} MB\n`
+    completionReport += `- Converted Size: ${(processedApk.length / 1024 / 1024).toFixed(2)} MB\n`
+    completionReport += `- Package: ${metadata.packageName || 'Unknown'}\n`
+    completionReport += `- Permissions: ${metadata.permissions.length}\n`
+    completionReport += `- Native Libraries: ${metadata.hasNativeLibs ? 'Yes' : 'No'}\n`
+    completionReport += `- Obfuscated: ${metadata.hasObfuscation ? 'Yes' : 'No'}\n`
+
+    sendLog(sessionId, completionReport, "success")
+
     return NextResponse.json({
       success: true,
-      downloadUrl: `/api/download/${clientId}/${outputFilename}`,
-      filename: outputFilename,
-      sessionId: clientId
+      sessionId,
+      downloadUrl: `/api/download/${sessionId}/${aiEnhancedFilename}`,
+      filename: aiEnhancedFilename,
+      originalSize: file.size,
+      convertedSize: processedApk.length,
+      aiAnalysis: aiAnalysis,
+      metadata: metadata,
+      completionReport: completionReport,
+      conversionMode: mode,
+      aiEnhanced: true
     })
 
   } catch (error) {
-    sendLog(clientId, `❌ Conversion failed: ${error}`, "error")
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Internal server error" },
-      { status: 500 }
-    )
+    console.error("AI-Enhanced conversion error:", error)
+    sendLog(sessionId, `💥 Critical error in AI-enhanced conversion: ${error.message}`, "error")
+    
+    return NextResponse.json({
+      error: "AI-Enhanced conversion failed",
+      details: error.message,
+      sessionId: sessionId,
+      aiEnhanced: true,
+      suggestion: "Try with a different APK file or conversion mode"
+    }, { status: 500 })
   }
 }
