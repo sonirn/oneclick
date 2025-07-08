@@ -281,7 +281,7 @@ export function APKConverter() {
                 <Zap className="h-4 w-4 text-blue-500" />
                 <span className="font-medium text-white">Debug Mode</span>
               </div>
-              <p className="text-sm text-gray-400">Perfect for app debugging and development testing</p>
+              <p className="text-sm text-gray-400">Advanced reverse engineering tools, method hooking, and dynamic analysis</p>
             </div>
             <Separator className="bg-slate-600" />
             <div className="space-y-2">
@@ -289,7 +289,7 @@ export function APKConverter() {
                 <Shield className="h-4 w-4 text-green-500" />
                 <span className="font-medium text-white">Sandbox Mode</span>
               </div>
-              <p className="text-sm text-gray-400">Ideal for security testing and system-level access</p>
+              <p className="text-sm text-gray-400">Military-grade security bypass, root detection evasion, and pro-level analysis</p>
             </div>
             <Separator className="bg-slate-600" />
             <div className="space-y-2">
@@ -297,7 +297,7 @@ export function APKConverter() {
                 <Settings className="h-4 w-4 text-purple-500" />
                 <span className="font-medium text-white">Combined Mode</span>
               </div>
-              <p className="text-sm text-gray-400">Best of both worlds for comprehensive testing</p>
+              <p className="text-sm text-gray-400">Professional security research platform with comprehensive bypass capabilities</p>
             </div>
           </CardContent>
         </Card>
