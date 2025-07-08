@@ -469,78 +469,87 @@ async function modifyResources(resourcesXml: string, mode: string): Promise<stri
   })
 }
 
-async function processAPK(apkBuffer: Buffer, mode: string, clientId: string): Promise<Buffer> {
+async function processAPKWithAI(apkBuffer: Buffer, mode: string, clientId: string, aiAnalysis: AiAnalysisResult | null): Promise<Buffer> {
   const zip = new AdmZip(apkBuffer)
   
-  sendLog(clientId, `🔧 Processing APK for ${mode} mode with ADVANCED REVERSE ENGINEERING features...`, "info")
-  sendLog(clientId, `🛡️ Adding pro-level security bypass and analysis capabilities...`, "info")
+  sendLog(clientId, `🤖 Processing APK for ${mode} mode with AI-ENHANCED capabilities...`, "info")
+  sendLog(clientId, `🛡️ Adding AI-powered security analysis and optimization...`, "info")
 
-  // 1. Process AndroidManifest.xml
-  const manifestEntry = zip.getEntry("AndroidManifest.xml")
-  if (!manifestEntry) {
-    throw new Error("AndroidManifest.xml not found in APK")
+  // Log AI analysis results
+  if (aiAnalysis) {
+    sendLog(clientId, `🔍 AI Risk Level: ${aiAnalysis.security_assessment.risk_level}`, "info")
+    sendLog(clientId, `⚙️ AI Recommended Mode: ${aiAnalysis.conversion_strategy.recommended_mode}`, "info")
+    
+    if (aiAnalysis.security_assessment.vulnerabilities.length > 0) {
+      sendLog(clientId, `⚠️ AI detected ${aiAnalysis.security_assessment.vulnerabilities.length} potential vulnerabilities`, "warning")
+    }
+
+    if (aiAnalysis.conversion_strategy.potential_issues.length > 0) {
+      sendLog(clientId, `🚨 AI identified ${aiAnalysis.conversion_strategy.potential_issues.length} potential conversion issues`, "warning")
+    }
   }
 
-  const manifestXml = manifestEntry.getData().toString()
-  const modifiedManifest = await modifyManifest(manifestXml, mode)
-  zip.deleteFile("AndroidManifest.xml")
-  zip.addFile("AndroidManifest.xml", Buffer.from(modifiedManifest))
-  sendLog(clientId, "✅ AndroidManifest.xml enhanced with debug permissions", "success")
+  try {
+    // 1. AI-Enhanced AndroidManifest.xml Processing
+    const manifestEntry = zip.getEntry("AndroidManifest.xml")
+    if (!manifestEntry) {
+      throw new Error("AndroidManifest.xml not found in APK")
+    }
 
-  // 2. Process resources
-  const resPath = "res/values/strings.xml"
-  const resEntry = zip.getEntry(resPath)
-  
-  const resourcesXml = resEntry ? resEntry.getData().toString() : '<resources></resources>'
-  const modifiedResources = await modifyResources(resourcesXml, mode)
-  
-  if (resEntry) {
-    zip.deleteFile(resPath)
+    const manifestXml = manifestEntry.getData().toString()
+    const modifiedManifest = await modifyManifestWithAI(manifestXml, mode, aiAnalysis)
+    zip.deleteFile("AndroidManifest.xml")
+    zip.addFile("AndroidManifest.xml", Buffer.from(modifiedManifest))
+    sendLog(clientId, "✅ AndroidManifest.xml enhanced with AI-optimized configurations", "success")
+
+    // 2. AI-Enhanced Resources Processing
+    const resPath = "res/values/strings.xml"
+    const resEntry = zip.getEntry(resPath)
+    
+    const resourcesXml = resEntry ? resEntry.getData().toString() : '<resources></resources>'
+    const modifiedResources = await modifyResourcesWithAI(resourcesXml, mode, aiAnalysis)
+    
+    if (resEntry) {
+      zip.deleteFile(resPath)
+    }
+    zip.addFile(resPath, Buffer.from(modifiedResources))
+    sendLog(clientId, "✅ Resources enhanced with AI-driven configurations", "success")
+
+    // 3. Add AI-Enhanced Network Security Configuration
+    const aiNetworkSecurityConfig = await generateAINetworkConfig(aiAnalysis, mode, clientId)
+    zip.addFile("res/xml/network_security_config.xml", Buffer.from(aiNetworkSecurityConfig))
+    sendLog(clientId, "🔒 AI-optimized network security configuration added", "success")
+
+    // 4. Add AI Analysis Results as APK metadata
+    if (aiAnalysis) {
+      const aiAnalysisData = JSON.stringify(aiAnalysis, null, 2)
+      zip.addFile("assets/ai_analysis_report.json", Buffer.from(aiAnalysisData))
+      sendLog(clientId, "📊 AI analysis report embedded in APK", "success")
+    }
+
+    // 5. Add AI-Enhanced Security Bypass Configuration
+    const aiSecurityBypassConfig = await generateAISecurityBypass(aiAnalysis, mode, clientId)
+    zip.addFile("res/values/ai_security_config.xml", Buffer.from(aiSecurityBypassConfig))
+    sendLog(clientId, "🛡️ AI-enhanced security bypass configuration added", "success")
+
+    // 6. Add AI Error Prevention Scripts
+    const aiErrorPreventionScript = generateAIErrorPreventionScript(aiAnalysis, mode)
+    zip.addFile("assets/ai_error_prevention.js", Buffer.from(aiErrorPreventionScript))
+    sendLog(clientId, "🚀 AI error prevention scripts integrated", "success")
+
+    // 7. Add AI Performance Optimization
+    const aiPerformanceConfig = generateAIPerformanceConfig(aiAnalysis, mode)
+    zip.addFile("res/values/ai_performance_config.xml", Buffer.from(aiPerformanceConfig))
+    sendLog(clientId, "⚡ AI performance optimization configuration added", "success")
+
+    sendLog(clientId, "🎉 AI-enhanced APK processing completed successfully!", "success")
+    return zip.toBuffer()
+
+  } catch (error) {
+    sendLog(clientId, `❌ AI-enhanced processing failed: ${error.message}`, "error")
+    throw error
   }
-  zip.addFile(resPath, Buffer.from(modifiedResources))
-  sendLog(clientId, "✅ Resources enhanced with debug configurations", "success")
-
-  // 3. Add Network Security Configuration for API monitoring
-  const networkSecurityConfig = `<?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
-    <!-- Allow all cleartext traffic for debugging -->
-    <base-config cleartextTrafficPermitted="true">
-        <trust-anchors>
-            <certificates src="system"/>
-            <certificates src="user"/>
-        </trust-anchors>
-    </base-config>
-    
-    <!-- Debug domains for API testing -->
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">127.0.0.1</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
-        <domain includeSubdomains="true">192.168.1.1</domain>
-        <domain includeSubdomains="true">*.ngrok.io</domain>
-        <domain includeSubdomains="true">*.herokuapp.com</domain>
-        <domain includeSubdomains="true">*.vercel.app</domain>
-        <domain includeSubdomains="true">*.netlify.app</domain>
-        <domain includeSubdomains="true">*.firebase.com</domain>
-        <domain includeSubdomains="true">*.googleapis.com</domain>
-        <domain includeSubdomains="true">*.amazon.com</domain>
-        <domain includeSubdomains="true">*.cloudfront.net</domain>
-        <domain includeSubdomains="true">*.dev</domain>
-        <domain includeSubdomains="true">*.test</domain>
-        <domain includeSubdomains="true">*.local</domain>
-        <domain includeSubdomains="true">api.example.com</domain>
-        <domain includeSubdomains="true">staging.example.com</domain>
-        <domain includeSubdomains="true">debug.example.com</domain>
-    </domain-config>
-    
-    <!-- Debug overrides for development -->
-    <debug-overrides>
-        <trust-anchors>
-            <certificates src="system"/>
-            <certificates src="user"/>
-        </trust-anchors>
-    </debug-overrides>
-</network-security-config>`
+}
   
   // 6. Add Pro-Level Security Bypass Configuration
   const securityBypassConfig = `<?xml version="1.0" encoding="utf-8"?>
