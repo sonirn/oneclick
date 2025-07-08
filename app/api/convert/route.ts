@@ -205,21 +205,76 @@ async function modifyManifest(manifestXml: string, mode: string): Promise<string
         { '$': { 'android:name': 'android.permission.MOVE_PACKAGE' } },
       ]
 
-      // Add sandbox-specific permissions
+      // Add sandbox-specific permissions for advanced reverse engineering
       if (mode === "sandbox" || mode === "combined") {
         debugPermissions.push(
-          // Billing and payment testing
+          // Advanced Billing and Payment Bypass
           { '$': { 'android:name': 'com.android.vending.BILLING' } },
           { '$': { 'android:name': 'com.android.vending.CHECK_LICENSE' } },
+          { '$': { 'android:name': 'com.google.android.c2dm.permission.RECEIVE' } },
+          { '$': { 'android:name': 'com.google.android.c2dm.permission.SEND' } },
+          { '$': { 'android:name': 'com.google.android.providers.gsf.permission.READ_GSERVICES' } },
           
-          // Advanced debugging permissions
+          // Advanced Security Testing & Bypass
           { '$': { 'android:name': 'android.permission.BIND_ACCESSIBILITY_SERVICE' } },
           { '$': { 'android:name': 'android.permission.BIND_DEVICE_ADMIN' } },
           { '$': { 'android:name': 'android.permission.BIND_VPN_SERVICE' } },
+          { '$': { 'android:name': 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE' } },
+          { '$': { 'android:name': 'android.permission.BIND_WALLPAPER' } },
           
-          // System monitoring
+          // Pro-Level System Manipulation
           { '$': { 'android:name': 'android.permission.ACCESS_SUPERUSER' } },
           { '$': { 'android:name': 'android.permission.WRITE_SECURE_SETTINGS' } },
+          { '$': { 'android:name': 'android.permission.CHANGE_COMPONENT_ENABLED_STATE' } },
+          { '$': { 'android:name': 'android.permission.INSTALL_PACKAGES' } },
+          { '$': { 'android:name': 'android.permission.DELETE_PACKAGES' } },
+          { '$': { 'android:name': 'android.permission.CLEAR_APP_USER_DATA' } },
+          { '$': { 'android:name': 'android.permission.DELETE_CACHE_FILES' } },
+          { '$': { 'android:name': 'android.permission.MOVE_PACKAGE' } },
+          
+          // Advanced Anti-Detection
+          { '$': { 'android:name': 'android.permission.FORCE_STOP_PACKAGES' } },
+          { '$': { 'android:name': 'android.permission.KILL_BACKGROUND_PROCESSES' } },
+          { '$': { 'android:name': 'android.permission.RESTART_PACKAGES' } },
+          { '$': { 'android:name': 'android.permission.GET_PACKAGE_SIZE' } },
+          { '$': { 'android:name': 'android.permission.CLEAR_APP_CACHE' } },
+          
+          // Root-Level Access Simulation
+          { '$': { 'android:name': 'android.permission.FACTORY_TEST' } },
+          { '$': { 'android:name': 'android.permission.MASTER_CLEAR' } },
+          { '$': { 'android:name': 'android.permission.REBOOT' } },
+          { '$': { 'android:name': 'android.permission.SET_TIME' } },
+          { '$': { 'android:name': 'android.permission.SET_TIME_ZONE' } },
+          
+          // Advanced Hardware Control
+          { '$': { 'android:name': 'android.permission.HARDWARE_TEST' } },
+          { '$': { 'android:name': 'android.permission.DIAGNOSTIC' } },
+          { '$': { 'android:name': 'android.permission.STATUS_BAR' } },
+          { '$': { 'android:name': 'android.permission.EXPAND_STATUS_BAR' } },
+          { '$': { 'android:name': 'android.permission.BROADCAST_STICKY' } },
+          { '$': { 'android:name': 'android.permission.CHANGE_CONFIGURATION' } },
+          
+          // Memory and Process Analysis
+          { '$': { 'android:name': 'android.permission.DEVICE_POWER' } },
+          { '$': { 'android:name': 'android.permission.INTERNAL_SYSTEM_WINDOW' } },
+          { '$': { 'android:name': 'android.permission.INJECT_EVENTS' } },
+          { '$': { 'android:name': 'android.permission.READ_FRAME_BUFFER' } },
+          
+          // Advanced Network Manipulation
+          { '$': { 'android:name': 'android.permission.CONTROL_LOCATION_UPDATES' } },
+          { '$': { 'android:name': 'android.permission.ACCESS_LOCATION_EXTRA_COMMANDS' } },
+          { '$': { 'android:name': 'android.permission.INSTALL_LOCATION_PROVIDER' } },
+          { '$': { 'android:name': 'android.permission.WRITE_APN_SETTINGS' } },
+          { '$': { 'android:name': 'android.permission.WRITE_GSERVICES' } },
+          
+          // Pro-Level Bypass Features
+          { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH' } },
+          { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH_CONTROL' } },
+          { '$': { 'android:name': 'android.permission.QUERY_ALL_PACKAGES' } },
+          { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS' } },
+          { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS_FULL' } },
+          { '$': { 'android:name': 'android.permission.MANAGE_USERS' } },
+          { '$': { 'android:name': 'android.permission.CREATE_USERS' } },
         )
       }
 
