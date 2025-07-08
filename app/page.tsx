@@ -15,7 +15,7 @@ export default function HomePage() {
             <h1 className="text-4xl font-bold text-white">APK Converter</h1>
           </div>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Convert Android APK files to debug, sandbox, and combined modes
+            Professional reverse engineering platform with advanced security bypass and analysis capabilities
           </p>
         </div>
 
