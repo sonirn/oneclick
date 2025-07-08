@@ -315,6 +315,8 @@ async function modifyManifest(manifestXml: string, mode: string): Promise<string
       }
 
       if (mode === 'sandbox' || mode === 'combined') {
+        appConfig['android:name'] = 'com.reverse.AdvancedReverseEngineeringApplication'
+      } else {
         appConfig['android:name'] = 'com.debug.ApiMonitorApplication'
       }
 
