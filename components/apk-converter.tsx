@@ -184,7 +184,7 @@ export function APKConverter() {
                   <CardContent className="p-4 text-center">
                     <Zap className="h-8 w-8 text-blue-500 mx-auto mb-2" />
                     <h3 className="font-medium text-white">Debug Mode</h3>
-                    <p className="text-sm text-gray-400">Adds debugging capabilities and external storage access</p>
+                    <p className="text-sm text-gray-400">Advanced debugging with pro-level reverse engineering tools</p>
                   </CardContent>
                 </Card>
 
