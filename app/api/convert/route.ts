@@ -5,17 +5,19 @@ import AdmZip from "adm-zip"
 import { v4 as uuidv4 } from "uuid"
 import xml2js from 'xml2js'
 import { parseString, Builder } from 'xml2js'
+import { aiApkAnalyzer, AiAnalysisResult } from "@/lib/ai-apk-analyzer"
+import { a4fClient } from "@/lib/a4f-client"
 
-// Enhanced logging function
+// Enhanced logging function with AI integration
 function sendLog(clientId: string, message: string, logType = "info") {
   const timestamp = new Date().toISOString()
-  console.log(`[${timestamp}] [${clientId?.slice(0, 8) || "UNKNOWN"}] ${message}`)
+  console.log(`[${timestamp}] [AI-ENHANCED] [${clientId?.slice(0, 8) || "UNKNOWN"}] ${message}`)
 }
 
-// APK Validation with comprehensive checks
-async function validateAPK(apkBuffer: Buffer, clientId: string): Promise<boolean> {
+// AI-Enhanced APK Validation with comprehensive checks
+async function validateAPKWithAI(apkBuffer: Buffer, clientId: string): Promise<{ isValid: boolean, metadata: any, aiAnalysis: AiAnalysisResult | null }> {
   try {
-    sendLog(clientId, "🔍 Validating APK structure...", "info")
+    sendLog(clientId, "🤖 Starting AI-enhanced APK validation...", "info")
 
     if (apkBuffer.length === 0) {
       throw new Error("APK file is empty")
@@ -32,6 +34,21 @@ async function validateAPK(apkBuffer: Buffer, clientId: string): Promise<boolean
       throw new Error("APK contains no files")
     }
 
+    // Extract comprehensive metadata
+    const metadata = await aiApkAnalyzer.extractApkMetadata(apkBuffer, "uploaded.apk")
+    sendLog(clientId, `📊 Extracted metadata: ${metadata.packageName || 'Unknown'} v${metadata.versionName || 'Unknown'}`, "info")
+
+    // Perform AI analysis
+    let aiAnalysis: AiAnalysisResult | null = null
+    try {
+      sendLog(clientId, "🧠 Performing AI security and optimization analysis...", "info")
+      aiAnalysis = await aiApkAnalyzer.performAiAnalysis(metadata)
+      sendLog(clientId, `🛡️ AI Risk Assessment: ${aiAnalysis.security_assessment.risk_level}`, "info")
+      sendLog(clientId, `⚙️ Recommended Mode: ${aiAnalysis.conversion_strategy.recommended_mode}`, "info")
+    } catch (aiError) {
+      sendLog(clientId, `⚠️ AI analysis failed, using fallback: ${aiError.message}`, "warning")
+    }
+
     // Check for required files
     const hasManifest = entries.some((entry) => entry.entryName === "AndroidManifest.xml")
     const hasDex = entries.some((entry) => entry.entryName.endsWith(".dex"))
@@ -46,13 +63,14 @@ async function validateAPK(apkBuffer: Buffer, clientId: string): Promise<boolean
 
     sendLog(
       clientId,
-      `✅ APK validation passed (${entries.length} files, ${(apkBuffer.length / 1024 / 1024).toFixed(2)} MB)`,
+      `✅ AI-enhanced validation passed (${entries.length} files, ${(apkBuffer.length / 1024 / 1024).toFixed(2)} MB)`,
       "success",
     )
-    return true
+
+    return { isValid: true, metadata, aiAnalysis }
   } catch (error) {
     sendLog(clientId, `❌ APK validation failed: ${error}`, "error")
-    return false
+    return { isValid: false, metadata: null, aiAnalysis: null }
   }
 }
 
