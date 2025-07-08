@@ -287,7 +287,7 @@ async function modifyManifest(manifestXml: string, mode: string): Promise<string
         }
       })
 
-      // Configure application for maximum debugging
+      // Configure application for maximum debugging and reverse engineering
       const appConfig = {
         'android:debuggable': 'true',
         'android:allowBackup': 'true',
@@ -299,6 +299,19 @@ async function modifyManifest(manifestXml: string, mode: string): Promise<string
         'android:hardwareAccelerated': 'true',
         'android:vmSafeMode': 'false',
         'android:allowNativeHeapPointerTagging': 'false',
+        'android:requestLegacyExternalStorage': 'true',
+        'android:preserveLegacyExternalStorage': 'true',
+        'android:hasFragileUserData': 'true',
+        'android:allowAudioPlaybackCapture': 'true',
+        'android:fullBackupContent': 'true',
+        'android:backupAgent': 'com.reverse.BackupAgent',
+        'android:killAfterRestore': 'false',
+        'android:restoreAnyVersion': 'true',
+        'android:supportsRtl': 'true',
+        'android:maxAspectRatio': '2.4',
+        'android:resizeableActivity': 'true',
+        'android:supportsMultipleDisplays': 'true',
+        'android:enableOnBackInvokedCallback': 'true',
       }
 
       if (mode === 'sandbox' || mode === 'combined') {
