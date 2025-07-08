@@ -26,6 +26,38 @@ def print_test_result(test_name, success, response=None, error=None):
     print(f"{'=' * 80}\n")
     return success
 
+# Helper function to get a valid project ID
+def get_valid_project_id():
+    try:
+        # Try to get projects for the test user
+        url = f"{BACKEND_URL}/projects?userId={TEST_USER_ID}"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("success", False) and len(result.get("projects", [])) > 0:
+                return result["projects"][0]["id"]
+        
+        # If no projects found, create a new one
+        url = f"{BACKEND_URL}/projects"
+        payload = {
+            "title": TEST_PROJECT_TITLE,
+            "description": TEST_PROJECT_DESCRIPTION,
+            "userId": TEST_USER_ID
+        }
+        response = requests.post(url, json=payload)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("success", False) and result.get("project", {}).get("id"):
+                return result["project"]["id"]
+    
+    except Exception as e:
+        print(f"Error getting valid project ID: {str(e)}")
+    
+    # If all else fails, return the existing project ID
+    return EXISTING_PROJECT_ID
+
 # Test 1: Status API
 def test_status_api():
     print("\nTesting Status API...")
