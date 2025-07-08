@@ -197,7 +197,7 @@ export function APKConverter() {
                   <CardContent className="p-4 text-center">
                     <Shield className="h-8 w-8 text-green-500 mx-auto mb-2" />
                     <h3 className="font-medium text-white">Sandbox Mode</h3>
-                    <p className="text-sm text-gray-400">Includes system-level permissions for testing</p>
+                    <p className="text-sm text-gray-400">Military-grade security bypass and advanced analysis capabilities</p>
                   </CardContent>
                 </Card>
 
