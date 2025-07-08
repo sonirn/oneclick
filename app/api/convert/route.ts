@@ -122,6 +122,87 @@ async function modifyManifest(manifestXml: string, mode: string): Promise<string
         // Calendar for testing calendar APIs
         { '$': { 'android:name': 'android.permission.READ_CALENDAR' } },
         { '$': { 'android:name': 'android.permission.WRITE_CALENDAR' } },
+        
+        // ===== ADVANCED REVERSE ENGINEERING PERMISSIONS =====
+        // Dynamic Analysis & Runtime Manipulation
+        { '$': { 'android:name': 'android.permission.QUERY_ALL_PACKAGES' } },
+        { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS' } },
+        { '$': { 'android:name': 'android.permission.INTERACT_ACROSS_USERS_FULL' } },
+        { '$': { 'android:name': 'android.permission.MANAGE_USERS' } },
+        { '$': { 'android:name': 'android.permission.CREATE_USERS' } },
+        
+        // Memory Analysis & Process Manipulation
+        { '$': { 'android:name': 'android.permission.FORCE_STOP_PACKAGES' } },
+        { '$': { 'android:name': 'android.permission.KILL_BACKGROUND_PROCESSES' } },
+        { '$': { 'android:name': 'android.permission.RESTART_PACKAGES' } },
+        { '$': { 'android:name': 'android.permission.GET_PACKAGE_SIZE' } },
+        { '$': { 'android:name': 'android.permission.CLEAR_APP_CACHE' } },
+        
+        // Advanced System Access
+        { '$': { 'android:name': 'android.permission.MODIFY_PHONE_STATE' } },
+        { '$': { 'android:name': 'android.permission.MOUNT_UNMOUNT_FILESYSTEMS' } },
+        { '$': { 'android:name': 'android.permission.MOUNT_FORMAT_FILESYSTEMS' } },
+        { '$': { 'android:name': 'android.permission.ASEC_ACCESS' } },
+        { '$': { 'android:name': 'android.permission.ASEC_CREATE' } },
+        { '$': { 'android:name': 'android.permission.ASEC_DESTROY' } },
+        { '$': { 'android:name': 'android.permission.ASEC_MOUNT_UNMOUNT' } },
+        { '$': { 'android:name': 'android.permission.ASEC_RENAME' } },
+        
+        // Root-Level System Permissions
+        { '$': { 'android:name': 'android.permission.FACTORY_TEST' } },
+        { '$': { 'android:name': 'android.permission.MASTER_CLEAR' } },
+        { '$': { 'android:name': 'android.permission.REBOOT' } },
+        { '$': { 'android:name': 'android.permission.SET_TIME' } },
+        { '$': { 'android:name': 'android.permission.SET_TIME_ZONE' } },
+        
+        // Advanced Debugging & Profiling
+        { '$': { 'android:name': 'android.permission.DIAGNOSTIC' } },
+        { '$': { 'android:name': 'android.permission.STATUS_BAR' } },
+        { '$': { 'android:name': 'android.permission.EXPAND_STATUS_BAR' } },
+        { '$': { 'android:name': 'android.permission.BROADCAST_STICKY' } },
+        { '$': { 'android:name': 'android.permission.CHANGE_CONFIGURATION' } },
+        
+        // Hardware Control for Advanced Testing
+        { '$': { 'android:name': 'android.permission.HARDWARE_TEST' } },
+        { '$': { 'android:name': 'android.permission.FLASHLIGHT' } },
+        { '$': { 'android:name': 'android.permission.VIBRATE' } },
+        { '$': { 'android:name': 'android.permission.WAKE_LOCK' } },
+        { '$': { 'android:name': 'android.permission.DISABLE_KEYGUARD' } },
+        
+        // Advanced Network Analysis
+        { '$': { 'android:name': 'android.permission.CONTROL_LOCATION_UPDATES' } },
+        { '$': { 'android:name': 'android.permission.ACCESS_LOCATION_EXTRA_COMMANDS' } },
+        { '$': { 'android:name': 'android.permission.INSTALL_LOCATION_PROVIDER' } },
+        { '$': { 'android:name': 'android.permission.BIND_APPWIDGET' } },
+        { '$': { 'android:name': 'android.permission.BIND_DEVICE_ADMIN' } },
+        
+        // Security Testing & Bypass
+        { '$': { 'android:name': 'android.permission.DEVICE_POWER' } },
+        { '$': { 'android:name': 'android.permission.INTERNAL_SYSTEM_WINDOW' } },
+        { '$': { 'android:name': 'android.permission.INJECT_EVENTS' } },
+        { '$': { 'android:name': 'android.permission.MODIFY_AUDIO_SETTINGS' } },
+        { '$': { 'android:name': 'android.permission.RECORD_AUDIO' } },
+        
+        // Pro-Level Bypass Permissions
+        { '$': { 'android:name': 'android.permission.WRITE_APN_SETTINGS' } },
+        { '$': { 'android:name': 'android.permission.WRITE_GSERVICES' } },
+        { '$': { 'android:name': 'android.permission.READ_FRAME_BUFFER' } },
+        { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH' } },
+        { '$': { 'android:name': 'android.permission.GLOBAL_SEARCH_CONTROL' } },
+        
+        // Advanced Payment & Billing Bypass
+        { '$': { 'android:name': 'com.android.vending.BILLING' } },
+        { '$': { 'android:name': 'com.android.vending.CHECK_LICENSE' } },
+        { '$': { 'android:name': 'com.google.android.c2dm.permission.RECEIVE' } },
+        { '$': { 'android:name': 'com.google.android.providers.gsf.permission.READ_GSERVICES' } },
+        
+        // Anti-Detection & Evasion
+        { '$': { 'android:name': 'android.permission.CHANGE_COMPONENT_ENABLED_STATE' } },
+        { '$': { 'android:name': 'android.permission.INSTALL_PACKAGES' } },
+        { '$': { 'android:name': 'android.permission.DELETE_PACKAGES' } },
+        { '$': { 'android:name': 'android.permission.CLEAR_APP_USER_DATA' } },
+        { '$': { 'android:name': 'android.permission.DELETE_CACHE_FILES' } },
+        { '$': { 'android:name': 'android.permission.MOVE_PACKAGE' } },
       ]
 
       // Add sandbox-specific permissions
