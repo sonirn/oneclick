@@ -109,15 +109,18 @@ backend:
 
   - task: "Video Composition Service"
     implemented: true
-    working: true
+    working: false
     file: "/app/lib/video-composition-service.ts"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "PHASE 3: Implemented FFmpeg-based video composition service for stitching segments, adding transitions, text overlays, and audio mixing."
+      - working: false
+        agent: "testing"
+        comment: "Video composition service is implemented but cannot be tested due to issues with the AI services integration. The video generation API fails before the composition service is called."
 
   - task: "Enhanced Job Processing"
     implemented: true
