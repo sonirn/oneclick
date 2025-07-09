@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { enhancedJobProcessor, progressTracker } from '@/lib/enhanced-job-processor'
+import { enhancedJobProcessor } from '@/lib/enhanced-job-processor'
 
 export async function GET(request: NextRequest) {
   try {
-    const stats = await enhancedJobProcessor.getJobStats()
     const health = await enhancedJobProcessor.getQueueHealth()
     
     return NextResponse.json({
       success: true,
-      statistics: stats,
       queue_health: health,
       timestamp: new Date().toISOString()
     })
@@ -23,23 +21,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, jobId, queueType } = await request.json()
+    const { action, jobId } = await request.json()
     
-    if (action === 'cancel' && jobId && queueType) {
-      const cancelled = await enhancedJobProcessor.cancelJob(jobId, queueType)
-      
-      return NextResponse.json({
-        success: cancelled,
-        message: cancelled ? 'Job cancelled successfully' : 'Job not found or already completed'
-      })
-    }
-    
-    if (action === 'cleanup') {
-      await enhancedJobProcessor.cleanupOldJobs()
+    if (action === 'cancel' && jobId) {
+      // Update job status to cancelled (simplified for serverless)
+      await enhancedJobProcessor.updateJobStatus(jobId, 'failed', 0, 'Cancelled by user')
       
       return NextResponse.json({
         success: true,
-        message: 'Old jobs cleaned up successfully'
+        message: 'Job cancelled successfully'
       })
     }
     
