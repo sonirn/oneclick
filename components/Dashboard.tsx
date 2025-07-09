@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import CreateProject from './CreateProject'
 import ProjectList from './ProjectList'
+import VideoLibrary from './VideoLibrary'
 
 interface DashboardProps {
   user: User
