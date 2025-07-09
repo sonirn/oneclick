@@ -82,12 +82,11 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({ 
         success: true, 
-        response: chatResult.response,
-        plan_updated: planUpdated,
-        updated_plan: planUpdated ? updatedPlan : null,
-        update_summary: updateResult.success && updateResult.updates?.has_updates ? 
-          updateResult.updates.summary : null,
-        timestamp: chatResult.timestamp
+        response: 'response' in chatResult ? chatResult.response : 'Chat failed',
+        plan_updated: false,
+        updated_plan: null,
+        update_summary: null,
+        timestamp: 'timestamp' in chatResult ? chatResult.timestamp : new Date().toISOString()
       })
     } catch (chatError) {
       console.error('Chat processing error:', chatError)
