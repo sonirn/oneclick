@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         userRequirements
       )
 
-      if (planResult.success) {
+      if (planResult.success && 'plan' in planResult) {
         // Update project with plan
         await db.query(
           `UPDATE projects 
