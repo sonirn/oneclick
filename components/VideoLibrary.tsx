@@ -19,8 +19,10 @@ import {
   Search,
   Grid,
   List,
-  SortDesc,
-  Eye
+  X,
+  ChevronDown,
+  Eye,
+  ExternalLink
 } from 'lucide-react'
 
 interface GeneratedVideo {
