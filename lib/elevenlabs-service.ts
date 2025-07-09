@@ -42,7 +42,7 @@ class ElevenLabsService {
 
   async generateVoice(request: ElevenLabsVoiceRequest): Promise<ElevenLabsVoiceResponse> {
     try {
-      const voiceId = request.voiceId || 'EXAVITQu4vr'; // Default voice
+      const voiceId = request.voiceId || 'EXAVITQu4vr4jVoFBE7fJyWN'; // Default voice ID
       const payload = {
         text: request.text,
         model_id: request.model || 'eleven_multilingual_v2',
@@ -53,6 +53,8 @@ class ElevenLabsService {
           use_speaker_boost: request.speakerBoost || false
         }
       };
+
+      console.log('ElevenLabs request:', { voiceId, payload });
 
       const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceId}`, {
         method: 'POST',
@@ -66,18 +68,23 @@ class ElevenLabsService {
 
       if (!response.ok) {
         const error = await response.text();
+        console.error('ElevenLabs API error:', error);
         throw new Error(`ElevenLabs API error: ${response.status} - ${error}`);
       }
 
       const audioBuffer = await response.arrayBuffer();
-      const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
-      const audioUrl = URL.createObjectURL(audioBlob);
       const audioId = `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Convert to base64 for storage and frontend compatibility
+      const base64Audio = Buffer.from(audioBuffer).toString('base64');
+      const audioDataUrl = `data:audio/mpeg;base64,${base64Audio}`;
+
+      console.log('ElevenLabs response: Audio generated successfully');
 
       return {
         audioId,
-        audioUrl,
-        duration: await this.getAudioDuration(audioBlob)
+        audioUrl: audioDataUrl,
+        duration: await this.estimateAudioDuration(audioBuffer)
       };
     } catch (error) {
       console.error('ElevenLabs voice generation error:', error);
