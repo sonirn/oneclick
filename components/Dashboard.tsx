@@ -45,6 +45,7 @@ export default function Dashboard({ user, onSignOut }: DashboardProps) {
     { name: 'Projects', id: 'projects', icon: Video },
     { name: 'Create New', id: 'create', icon: PlusCircle },
     { name: 'Video Library', id: 'library', icon: Upload },
+    { name: 'Analytics', id: 'analytics', icon: BarChart3 },
     { name: 'Settings', id: 'settings', icon: Settings },
   ]
 
