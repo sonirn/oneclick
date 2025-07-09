@@ -88,8 +88,8 @@ class VideoCompositionService {
       const videoResult = await this.createVideoComposition(
         localSegments,
         request.outputSettings,
-        request.effects,
-        outputPath
+        outputPath,
+        request.effects
       );
       
       if (!videoResult.success) {
