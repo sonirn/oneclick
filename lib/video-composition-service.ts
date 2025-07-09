@@ -162,8 +162,8 @@ class VideoCompositionService {
   private async createVideoComposition(
     segments: VideoSegment[],
     outputSettings: CompositionRequest['outputSettings'],
-    effects?: CompositionRequest['effects'],
-    outputPath: string
+    outputPath: string,
+    effects?: CompositionRequest['effects']
   ): Promise<CompositionResult> {
     return new Promise((resolve) => {
       const command = ffmpeg();
