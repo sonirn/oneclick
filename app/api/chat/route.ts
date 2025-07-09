@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       if (!chatResult.success) {
         return NextResponse.json({ 
           success: false, 
-          error: chatResult.error
+          error: 'error' in chatResult ? chatResult.error : 'Chat failed'
         }, { status: 500 })
       }
 
