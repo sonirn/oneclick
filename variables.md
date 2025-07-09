@@ -117,9 +117,9 @@ vercel --prod
 openssl rand -base64 32
 ```
 
-⚠️ **Domain Configuration**: After deployment, update:
+⚠️ **Domain Configuration**: Update for your deployment:
 ```
-NEXTAUTH_URL=https://your-domain.vercel.app
+NEXTAUTH_URL=https://oneclickvid.vercel.app
 ```
 
 ---
