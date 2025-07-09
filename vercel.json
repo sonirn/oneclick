@@ -1,8 +1,9 @@
 {
   "version": 2,
+  "name": "ai-video-generation-platform",
   "builds": [
     {
-      "src": "package.json",
+      "src": "next.config.js",
       "use": "@vercel/next"
     }
   ],
@@ -12,28 +13,22 @@
       "dest": "/api/$1"
     }
   ],
+  "env": {
+    "NODE_ENV": "production"
+  },
   "functions": {
     "app/api/analyze/route.ts": {
-      "maxDuration": 60
+      "maxDuration": 30
     },
     "app/api/generate-plan/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/generate-video/route.ts": {
       "maxDuration": 60
     },
     "app/api/chat/route.ts": {
       "maxDuration": 30
-    },
-    "app/api/generate-video/route.ts": {
-      "maxDuration": 300
-    },
-    "app/api/projects/*/progress/route.ts": {
-      "maxDuration": 30
-    },
-    "app/api/jobs/*/progress/route.ts": {
-      "maxDuration": 30
     }
-  },
-  "env": {
-    "NODE_ENV": "production"
   },
   "headers": [
     {
@@ -49,15 +44,9 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
+          "value": "X-Requested-With, Content-Type, Authorization"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
     }
   ]
 }
