@@ -12,7 +12,8 @@ import {
   LogOut,
   User as UserIcon,
   Menu,
-  X
+  X,
+  BarChart3
 } from 'lucide-react'
 import CreateProject from './CreateProject'
 import ProjectList from './ProjectList'
