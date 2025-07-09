@@ -43,7 +43,9 @@ def get_valid_project_id():
         payload = {
             "title": TEST_PROJECT_TITLE,
             "description": TEST_PROJECT_DESCRIPTION,
-            "userId": TEST_USER_ID
+            "userId": TEST_USER_ID,
+            "sampleVideoUrl": "https://example.com/videos/test-video.mp4",
+            "mockData": True
         }
         response = requests.post(url, json=payload)
         
