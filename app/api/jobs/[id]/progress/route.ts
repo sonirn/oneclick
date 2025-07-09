@@ -3,25 +3,26 @@ import { videoGenerationService } from '@/lib/video-generation-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const jobId = params.id
+    const resolvedParams = await params;
+    const jobId = resolvedParams.id;
 
     if (!jobId) {
       return NextResponse.json({ 
         success: false, 
         error: 'Job ID is required' 
-      }, { status: 400 })
+      }, { status: 400 });
     }
 
-    const progress = await videoGenerationService.getJobProgress(jobId)
+    const progress = await videoGenerationService.getJobProgress(jobId);
 
     if (!progress.success) {
       return NextResponse.json({ 
         success: false, 
         error: progress.error 
-      }, { status: 404 })
+      }, { status: 404 });
     }
 
     return NextResponse.json({ 
@@ -39,12 +40,12 @@ export async function GET(
                (progress.video_progress?.completed || 0) + 
                (progress.video_progress?.failed || 0)
       }
-    })
+    });
   } catch (error) {
-    console.error('Error getting job progress:', error)
+    console.error('Error getting job progress:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Failed to get job progress' 
-    }, { status: 500 })
+    }, { status: 500 });
   }
 }
