@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
         const imageKey = `projects/${projectId}/image-${Date.now()}.${imageFile.name.split('.').pop()}`
         const imageUpload = await r2Storage.uploadFile(imageKey, imageBuffer, imageFile.type)
         
-        if (imageUpload.success) {
+        if (imageUpload.success && imageUpload.url) {
           uploads.character_image_url = imageUpload.url
         }
       }
