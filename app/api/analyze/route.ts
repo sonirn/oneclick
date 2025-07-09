@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
-import { videoAnalysisService } from '@/lib/ai-services'
+import { videoAnalysisService } from '@/lib/enhanced-ai-services'
 
 export async function POST(request: NextRequest) {
   try {
