@@ -1,6 +1,6 @@
 {
-  "name": "video-generation-platform",
-  "version": "0.1.0",
+  "name": "ai-video-generation-platform",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,9 +8,12 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "db:test": "curl -s http://localhost:3001/api/test-db",
-    "status": "curl -s http://localhost:3001/api/status | jq",
-    "ai-status": "curl -s http://localhost:3001/api/ai-status | jq"
+    "db:test": "curl -s http://localhost:3000/api/test-db",
+    "status": "curl -s http://localhost:3000/api/status | jq",
+    "ai-status": "curl -s http://localhost:3000/api/ai-status | jq",
+    "rate-limit-status": "curl -s http://localhost:3000/api/rate-limit-status | jq",
+    "vercel-build": "next build",
+    "postinstall": "prisma generate || true"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.450.0",
@@ -62,5 +65,8 @@
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

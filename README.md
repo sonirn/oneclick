@@ -1,211 +1,260 @@
-# AI Video Generation Platform
+# 🎬 AI Video Generation Platform
 
-A comprehensive video generation platform built with Next.js that uses multiple AI models to create similar videos based on user-uploaded samples.
+A comprehensive Next.js application for AI-powered video generation with advanced rate limiting, multiple AI model integration, and production-ready deployment.
 
 ## 🚀 Features
 
-- **Smart Video Analysis**: AI analyzes sample videos to understand content, style, and structure
-- **Multiple AI Models**: Integration with RunwayML, Google Veo, Groq, XAI, and more
-- **Interactive Planning**: Users can chat and modify AI-generated video plans
-- **Background Processing**: Video generation continues even if users leave the website
-- **7-Day Access**: Generated videos are accessible for 7 days
-- **Mobile-First Design**: Fully responsive and optimized for mobile devices
-- **High-Quality Output**: No watermarks, 9:16 aspect ratio, up to 60 seconds
+### ✨ Core Features
+- **AI Video Analysis**: Analyze uploaded videos using multiple Gemini API keys
+- **Intelligent Plan Generation**: Create detailed video generation plans
+- **Multi-AI Model Support**: RunwayML Gen-4/Gen-3, Google Veo 2/3, ElevenLabs
+- **Advanced Rate Limiting**: Load-balanced API key rotation with exponential backoff
+- **Real-time Progress Tracking**: Monitor generation progress with WebSocket updates
+- **Background Job Processing**: Redis/Bull queue system for heavy operations
+- **Production-Ready**: Optimized for Vercel deployment with proper error handling
 
-## 🛠 Tech Stack
+### 🛡️ Enhanced Rate Limiting
+- **Multiple API Key Support**: Rotate between multiple Gemini API keys
+- **Intelligent Load Balancing**: Distribute requests across available keys
+- **Exponential Backoff**: Smart retry logic with increasing delays
+- **Request Queuing**: Priority-based request queue management
+- **Real-time Monitoring**: Live status dashboard for all API services
+- **Automatic Recovery**: Self-healing rate limit management
 
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Database**: Neon PostgreSQL
-- **Storage**: Cloudflare R2
-- **Authentication**: Supabase
-- **AI Services**: 
-  - Video Generation: RunwayML Gen-4, Google Veo 2/3
-  - Audio: ElevenLabs, MMAudio
-  - Chat/Analysis: Groq, XAI, Claude, Gemini
-  - Video Editing: Shotstack, Mux
+### 🤖 AI Services Integration
+- **Gemini API**: Multiple keys for video analysis and plan generation
+- **RunwayML**: Gen-4 Turbo and Gen-3 Alpha for video generation
+- **Google Veo**: Veo 2 and Veo 3 for advanced video creation
+- **ElevenLabs**: Voice generation and audio processing
+- **Groq**: Fast inference for real-time operations
 
-## 🏗 Architecture
+## 🏗️ Architecture
 
+### Tech Stack
+- **Frontend**: Next.js 15, React 18, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, PostgreSQL (Neon), Redis
+- **AI Services**: Gemini, RunwayML, ElevenLabs, Google Veo, Groq
+- **Storage**: Cloudflare R2, Supabase
+- **Deployment**: Vercel (Serverless Functions)
+
+### Rate Limiting System
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Next.js App   │────│   Neon DB       │    │  Cloudflare R2  │
-│   (Frontend +   │    │   (PostgreSQL)  │    │   (File Storage)│
-│    API Routes)  │    └─────────────────┘    └─────────────────┘
-└─────────────────┘              │                      │
-        │                        │                      │
-        ├────────────────────────┼──────────────────────┤
-        │                        │                      │
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Supabase      │    │   AI Services   │    │ Background Jobs │
-│   (Auth)        │    │   (Video/Audio/ │    │   (Processing)  │
-│                 │    │    Chat APIs)   │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                Rate Limiting Service                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │ Gemini Key 1│  │ Gemini Key 2│  │ Gemini Key 3│         │
+│  │ Status: OK  │  │ Status: OK  │  │ Status: COOL│         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+│                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │ Request     │  │ Load        │  │ Exponential │         │
+│  │ Queue       │  │ Balancer    │  │ Backoff     │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+└─────────────────────────────────────────────────────────────┘
 ```
-
-## 📋 Database Schema
-
-### Users
-- `id` (UUID, Primary Key)
-- `email` (String, Unique)
-- `name` (String)
-- `created_at`, `updated_at` (Timestamps)
-
-### Projects
-- `id` (UUID, Primary Key)
-- `user_id` (UUID, Foreign Key)
-- `title`, `description` (String)
-- `sample_video_url`, `character_image_url`, `audio_file_url` (String)
-- `analysis_result`, `generation_plan` (JSONB)
-- `status` (String)
-- `created_at`, `updated_at` (Timestamps)
-
-### Generated Videos
-- `id` (UUID, Primary Key)
-- `project_id` (UUID, Foreign Key)
-- `video_url`, `thumbnail_url` (String)
-- `duration`, `file_size` (Integer)
-- `quality`, `aspect_ratio`, `ai_model_used` (String)
-- `status` (String)
-- `expires_at` (Timestamp - 7 days from creation)
-- `created_at`, `updated_at` (Timestamps)
-
-### Processing Jobs
-- `id` (UUID, Primary Key)
-- `project_id` (UUID, Foreign Key)
-- `job_type`, `status` (String)
-- `progress` (Integer)
-- `error_message` (Text)
-- `job_data` (JSONB)
-- `started_at`, `completed_at` (Timestamps)
 
 ## 🚦 API Endpoints
 
 ### Core APIs
+- `POST /api/analyze` - Video analysis with rate limiting
+- `POST /api/generate-plan` - Plan generation with load balancing
+- `POST /api/chat` - Interactive chat with AI about plans
+- `POST /api/generate-video` - Video generation with multiple models
+- `GET /api/rate-limit-status` - Real-time rate limiting status
+
+### Monitoring
 - `GET /api/status` - System health check
-- `GET /api/ai-status` - AI services status
-- `GET /api/projects` - List user projects
-- `POST /api/projects` - Create new project
-- `DELETE /api/projects/[id]` - Delete project
-- `GET /api/upload` - Get signed upload URL
-- `POST /api/upload` - Upload files to R2
+- `GET /api/ai-status` - AI service status check
+- `GET /api/rate-limit-status` - Rate limiting dashboard
 
-### Coming in Phase 2
-- `POST /api/analyze` - Analyze video content
-- `POST /api/generate-plan` - Generate video plan
-- `POST /api/chat` - Chat with AI about plan
-- `POST /api/generate-video` - Start video generation
-- `GET /api/jobs/[id]` - Check processing status
+## 📊 Rate Limiting Configuration
 
-## 🔧 Environment Variables
-
-```env
-# Database
-DATABASE_URL="postgres://..."
-
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL="https://..."
-NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
-
-# Cloudflare R2
-R2_ACCOUNT_ID="..."
-R2_ACCESS_KEY_ID="..."
-R2_SECRET_ACCESS_KEY="..."
-R2_BUCKET_NAME="..."
-R2_ENDPOINT="..."
-
-# AI APIs
-GROQ_API_KEY="..."
-XAI_API_KEY="..."
-GEMINI_API_KEY="..."
-RUNWAY_API_KEY="..."
-ELEVENLABS_API_KEY="..."
-# ... more AI service keys
+### Gemini API (Multiple Keys)
+```javascript
+{
+  maxRequests: 15,      // Per key per minute
+  windowMs: 60000,      // 1 minute window
+  cooldownMs: 30000,    // 30 second cooldown
+  retryAttempts: 3,     // Max retry attempts
+  backoffMultiplier: 2  // Exponential backoff
+}
 ```
 
-## 🚀 Getting Started
+### Other Services
+- **RunwayML**: 10 requests/minute, 60s cooldown
+- **ElevenLabs**: 20 requests/minute, 30s cooldown
+- **Groq**: 30 requests/minute, 20s cooldown
+
+## 🚀 Deployment
+
+### Quick Deploy to Vercel
 
 1. **Clone and Install**
+   ```bash
+   git clone <repository-url>
+   cd ai-video-generation-platform
+   npm install
+   ```
+
+2. **Run Deployment Check**
+   ```bash
+   node scripts/deploy-check.js
+   ```
+
+3. **Deploy to Vercel**
+   ```bash
+   vercel --prod
+   ```
+
+### Environment Variables
+
+Add these to your Vercel project:
+
 ```bash
-git clone <repository>
-cd video-generation-platform
+# Database
+DATABASE_URL=your_neon_postgresql_url
+POSTGRES_URL=your_neon_postgresql_url
+
+# Multiple Gemini API Keys
+GEMINI_API_KEY=AIzaSyBwVEDRvZ2bHppZj2zN4opMqxjzcxpJCDk
+GEMINI_API_KEY_2=AIzaSyB-VMWQe_Bvx6j_iixXTVGRB0fx0RpQSLU
+GEMINI_API_KEY_3=AIzaSyD36dRBkEZUyCpDHLxTVuMO4P98SsYjkbc
+
+# Other AI Services
+RUNWAY_API_KEY=your_runway_api_key
+ELEVENLABS_API_KEY=your_elevenlabs_api_key
+GROQ_API_KEY=your_groq_api_key
+
+# Authentication
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Storage
+CLOUDFLARE_R2_ACCOUNT_ID=your_account_id
+CLOUDFLARE_R2_ACCESS_KEY_ID=your_access_key
+CLOUDFLARE_R2_SECRET_ACCESS_KEY=your_secret_key
+CLOUDFLARE_R2_BUCKET_NAME=your_bucket_name
+CLOUDFLARE_R2_PUBLIC_URL=your_public_url
+
+# Application
+NODE_ENV=production
+NEXTAUTH_URL=your_production_url
+NEXTAUTH_SECRET=your_secret
+```
+
+## 🔧 Development
+
+### Local Development
+```bash
+# Install dependencies
 npm install
-```
 
-2. **Environment Setup**
-```bash
-cp .env.example .env.local
-# Add your API keys and configuration
-```
-
-3. **Database Setup**
-```bash
-# Database tables are auto-created on first API call
-# Check http://localhost:3001/api/status for health
-```
-
-4. **Start Development**
-```bash
+# Run development server
 npm run dev
-# App runs on http://localhost:3001
+
+# Type checking
+npm run type-check
+
+# Check deployment readiness
+node scripts/deploy-check.js
 ```
 
-## 📱 Mobile-First Design
+### Testing Rate Limiting
+```bash
+# Check rate limiting status
+curl http://localhost:3000/api/rate-limit-status
 
-The application is designed mobile-first with:
-- Responsive layouts for all screen sizes
-- Touch-friendly file upload areas
-- Optimized forms and navigation
-- Progressive Web App capabilities (coming soon)
+# Test AI services
+curl http://localhost:3000/api/ai-status
 
-## 🔄 Processing Workflow
+# Monitor system status
+curl http://localhost:3000/api/status
+```
 
-1. **Upload**: User uploads sample video, character image, and audio
-2. **Analysis**: AI analyzes video content, style, and structure
-3. **Planning**: AI generates detailed video creation plan
-4. **Chat**: User can discuss and modify the plan via chat
-5. **Generation**: Multiple AI models create video segments
-6. **Composition**: Videos are combined with effects and audio
-7. **Delivery**: Final video is available for 7-day download
+## 📈 Monitoring
 
-## 🎯 Current Status (Phase 1 Complete)
+### Rate Limiting Dashboard
+Access the rate limiting dashboard at `/api/rate-limit-status` to monitor:
+- API key usage across all services
+- Request queue lengths
+- Cooldown periods
+- Error rates
+- Load balancing efficiency
 
-✅ **Infrastructure Setup**
-- Next.js 14 application with TypeScript
-- Neon PostgreSQL database with schema
-- Cloudflare R2 file storage
-- Supabase authentication
-- Mobile-responsive UI
+### Key Metrics
+- **API Key Health**: Status of each API key
+- **Request Distribution**: Load balancing across keys
+- **Queue Processing**: Background job status
+- **Error Recovery**: Automatic retry success rates
 
-✅ **Core Components**
-- Authentication system (sign up/sign in)
-- Project creation interface
-- File upload system (video, image, audio)
-- Project management dashboard
-- API routes for CRUD operations
+## 🛠️ Advanced Features
 
-✅ **Service Integrations**
-- Database connection verified
-- R2 storage working
-- Supabase auth configured
-- AI service APIs tested
+### Intelligent API Key Management
+- **Round-robin Distribution**: Evenly distribute requests
+- **Health Monitoring**: Track key performance and availability
+- **Automatic Failover**: Switch to healthy keys when needed
+- **Usage Analytics**: Monitor consumption patterns
 
-## 🚧 Coming Next (Phase 2)
+### Request Prioritization
+- **High Priority**: Critical operations (video analysis)
+- **Medium Priority**: Standard operations (chat)
+- **Low Priority**: Background tasks (plan updates)
 
-- Video analysis with AI models
-- Plan generation and chat interface
-- Real-time progress tracking
-- Background job processing
+### Error Handling
+- **Graceful Degradation**: Fallback to available services
+- **Detailed Logging**: Comprehensive error tracking
+- **User Feedback**: Clear error messages to users
+- **Automatic Recovery**: Self-healing capabilities
 
-## 📊 System Status
+## 📚 Documentation
 
-Check system health at:
-- `/api/status` - Core services (DB, Storage, Auth)
-- `/api/ai-status` - AI service connectivity
+- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Complete deployment instructions
+- [API Documentation](docs/API.md) - Detailed API reference
+- [Rate Limiting Guide](docs/RATE_LIMITING.md) - Rate limiting configuration
+- [Development Setup](docs/DEVELOPMENT.md) - Local development guide
+
+## 🎯 Production Checklist
+
+- [ ] Multiple Gemini API keys configured
+- [ ] Rate limiting tested and working
+- [ ] All AI services authenticated
+- [ ] Database connection stable
+- [ ] File upload/storage working
+- [ ] Vercel deployment successful
+- [ ] Environment variables set
+- [ ] Monitoring dashboards active
+- [ ] SSL certificate installed
+- [ ] Performance optimized
+
+## 🔒 Security Features
+
+- **API Key Rotation**: Automatic key cycling
+- **Rate Limiting**: Prevent abuse and quota exhaustion
+- **Input Validation**: Sanitize all user inputs
+- **CORS Configuration**: Proper cross-origin settings
+- **Environment Security**: Encrypted environment variables
+
+## 💡 Tips for Production
+
+1. **Monitor API Usage**: Keep track of quota consumption
+2. **Scale API Keys**: Add more keys as usage grows
+3. **Optimize Caching**: Implement response caching where appropriate
+4. **Error Monitoring**: Set up alerts for critical failures
+5. **Performance Testing**: Load test before major releases
 
 ## 🤝 Contributing
 
-This is a comprehensive video generation platform with multiple moving parts. Each component has been carefully designed for scalability and reliability.
+1. Fork the repository
+2. Create a feature branch
+3. Run tests and checks
+4. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Made with ❤️ using Next.js, AI, and lots of coffee ☕**
+Built with ❤️ for the AI video generation community. Ready for production deployment on Vercel with advanced rate limiting and multi-AI model support.
