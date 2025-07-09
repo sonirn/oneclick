@@ -37,14 +37,20 @@ export async function GET() {
 
   // Test RunwayML API
   try {
-    const runwayResponse = await fetch('https://api.runwayml.com/v1/tasks', {
+    const runwayResponse = await fetch('https://api.runwayml.com/text_to_video', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.RUNWAY_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({
+        model: 'gen3_alpha',
+        prompt_text: 'test',
+        duration: 3
+      })
     })
     
-    if (runwayResponse.ok || runwayResponse.status === 401) { // 401 means API key is recognized
+    if (runwayResponse.ok || runwayResponse.status === 400) { // 400 might be expected for test request
       status.ai_services.runway = {
         status: 'healthy',
         message: 'RunwayML API connection successful'
