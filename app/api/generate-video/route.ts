@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
-import { videoGenerationService, VideoGenerationRequest } from '@/lib/video-generation-service'
+import { videoGenerationService } from '@/lib/video-generation-service'
 
 export async function POST(request: NextRequest) {
   try {
