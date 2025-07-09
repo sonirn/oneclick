@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Use the new comprehensive video generation service
-    const result = await videoGenerationService.generateVideo(projectId, generationRequest);
+    const result = await videoGenerationService.generateVideo(projectId, project.generation_plan);
 
     if (!result.success) {
       // Update project status to failed
