@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
         const audioKey = `projects/${projectId}/audio-${Date.now()}.${audioFile.name.split('.').pop()}`
         const audioUpload = await r2Storage.uploadFile(audioKey, audioBuffer, audioFile.type)
         
-        if (audioUpload.success) {
+        if (audioUpload.success && audioUpload.url) {
           uploads.audio_file_url = audioUpload.url
         }
       }
