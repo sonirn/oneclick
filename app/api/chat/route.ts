@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
-import { chatService } from '@/lib/ai-services'
+import { chatService } from '@/lib/enhanced-ai-services'
 
 export async function POST(request: NextRequest) {
   try {
