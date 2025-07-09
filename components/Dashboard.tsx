@@ -17,6 +17,8 @@ import {
 import CreateProject from './CreateProject'
 import ProjectList from './ProjectList'
 import VideoLibrary from './VideoLibrary'
+import AnalyticsDashboard from './AnalyticsDashboard'
+import Settings from './Settings'
 
 interface DashboardProps {
   user: User
