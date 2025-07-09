@@ -19,8 +19,7 @@ export async function GET() {
     const dbResult = await db.query('SELECT NOW() as timestamp')
     status.services.database = {
       status: 'healthy',
-      message: 'Database connection successful',
-      timestamp: dbResult.rows[0].timestamp
+      message: 'Database connection successful'
     }
   } catch (error) {
     status.services.database = {
