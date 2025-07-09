@@ -101,8 +101,8 @@ class RateLimitService {
     });
 
     // Initialize key info for all services
-    for (const [serviceName, service] of this.services) {
-      service.apiKeys.forEach(key => {
+    for (const [serviceName, service] of Array.from(this.services.entries())) {
+      service.apiKeys.forEach((key: string) => {
         if (key) {
           service.keyInfo.set(key, {
             key,
