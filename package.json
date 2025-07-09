@@ -12,8 +12,7 @@
     "status": "curl -s http://localhost:3000/api/status | jq",
     "ai-status": "curl -s http://localhost:3000/api/ai-status | jq",
     "rate-limit-status": "curl -s http://localhost:3000/api/rate-limit-status | jq",
-    "vercel-build": "next build",
-    "postinstall": "prisma generate || true"
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.450.0",
@@ -67,6 +66,6 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x"
   }
 }
