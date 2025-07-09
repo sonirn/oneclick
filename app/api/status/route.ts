@@ -34,7 +34,7 @@ export async function GET() {
     const r2Result = await r2Storage.getSignedUploadUrl('test-file.txt', 'text/plain')
     status.services.r2Storage = {
       status: r2Result.success ? 'healthy' : 'unhealthy',
-      message: r2Result.success ? 'R2 storage connection successful' : r2Result.error
+      message: r2Result.success ? 'R2 storage connection successful' : (r2Result.error || 'R2 storage connection failed')
     }
     if (!r2Result.success) {
       status.overall = 'degraded'
