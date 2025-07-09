@@ -75,22 +75,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       job_id: result.jobId,
-      status: result.status,
-      progress: result.progress,
-      estimated_time: result.estimatedTime,
       message: 'Video generation started with real AI models (RunwayML, Google Veo, ElevenLabs)',
-      ai_models_available: ['RunwayML Gen-4 Turbo', 'RunwayML Gen-3 Alpha', 'Google Veo 3', 'Google Veo 2'],
-      features: [
-        'Real AI video generation',
-        'Automatic segment creation',
-        'Multi-model AI selection',
-        'Audio generation with ElevenLabs',
-        'FFmpeg video composition',
-        'Background processing',
-        'Progress tracking',
-        '9:16 aspect ratio',
-        'High quality output'
-      ]
+      estimated_time: result.estimatedTime,
+      video_count: result.videoIds.length
     })
   } catch (error) {
     console.error('Error starting video generation:', error)
