@@ -16,7 +16,7 @@ interface RunwayGenerationResponse {
 
 class RunwayService {
   private apiKey: string;
-  private baseUrl: string = 'https://api.runwayml.com/v1';
+  private baseUrl: string = 'https://api.runwayml.com';
 
   constructor() {
     this.apiKey = process.env.RUNWAY_API_KEY || '';
@@ -27,11 +27,11 @@ class RunwayService {
 
   async generateVideo(request: RunwayGenerationRequest): Promise<RunwayGenerationResponse> {
     try {
-      // Real RunwayML API integration
+      // Real RunwayML API integration based on latest format
       const payload = {
-        model: request.model === 'gen4_turbo' ? 'gen4-turbo' : 'gen3-alpha',
-        prompt: request.prompt,
-        ...(request.imageUrl && { image: request.imageUrl }),
+        model: request.model,
+        prompt_text: request.prompt,
+        ...(request.imageUrl && { prompt_image: request.imageUrl }),
         duration: Math.min(request.duration, request.model === 'gen4_turbo' ? 10 : 4), // Gen4: 10s max, Gen3: 4s max
         ratio: request.aspectRatio === '9:16' ? '720:1280' : '1280:720',
         seed: Math.floor(Math.random() * 1000000)
@@ -39,7 +39,8 @@ class RunwayService {
 
       console.log('RunwayML request:', payload);
 
-      const response = await fetch(`${this.baseUrl}/video/generate`, {
+      const endpoint = request.imageUrl ? '/image_to_video' : '/text_to_video';
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
