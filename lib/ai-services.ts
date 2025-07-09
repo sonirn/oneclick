@@ -1,15 +1,15 @@
-import { Groq } from 'groq-sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // Initialize AI clients
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
-})
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
 // AI Video Analysis Service
 export const videoAnalysisService = {
   // Analyze video content and generate detailed analysis
   analyzeVideo: async (videoUrl: string, characterImageUrl?: string, audioFileUrl?: string) => {
     try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+      
       const analysisPrompt = `
 Analyze the provided video content and generate a detailed analysis. Focus on:
 
@@ -47,8 +47,8 @@ FORMAT YOUR RESPONSE AS JSON:
     "effects_used": ["list of effects"]
   },
   "script_elements": {
-    "has_text_overlay": boolean,
-    "has_narration": boolean,
+    "has_text_overlay": true,
+    "has_narration": true,
     "key_messages": ["list of key messages"],
     "call_to_action": "CTA if any"
   },
@@ -65,23 +65,13 @@ ${characterImageUrl ? `Character Image: ${characterImageUrl}` : ''}
 ${audioFileUrl ? `Audio File: ${audioFileUrl}` : ''}
 `
 
-      const completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert video analyst specializing in content analysis for AI video generation. Analyze videos in detail and provide structured insights for recreating similar content."
-          },
-          {
-            role: "user", 
-            content: analysisPrompt
-          }
-        ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.3,
-        max_tokens: 2000
-      })
+      const result = await model.generateContent([
+        {
+          text: `You are an expert video analyst specializing in content analysis for AI video generation. Analyze videos in detail and provide structured insights for recreating similar content.\n\n${analysisPrompt}`
+        }
+      ])
 
-      const analysisText = completion.choices[0]?.message?.content
+      const analysisText = result.response.text()
       if (!analysisText) {
         throw new Error('No analysis result received')
       }
@@ -117,6 +107,8 @@ ${audioFileUrl ? `Audio File: ${audioFileUrl}` : ''}
   // Generate detailed video creation plan
   generatePlan: async (analysis: any, userRequirements?: string) => {
     try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+      
       const planPrompt = `
 Based on the video analysis provided, create a detailed plan for generating a similar video using AI models.
 
@@ -141,14 +133,14 @@ GENERATION PLAN REQUIREMENTS:
 FORMAT RESPONSE AS JSON:
 {
   "plan_summary": "Overall plan description",
-  "total_duration": "target duration in seconds",
+  "total_duration": 30,
   "segments": [
     {
       "segment_number": 1,
-      "duration": "duration in seconds",
+      "duration": 10,
       "description": "what happens in this segment",
       "visual_style": "visual requirements",
-      "ai_model": "recommended AI model",
+      "ai_model": "runway-gen4",
       "prompt": "AI generation prompt for this segment",
       "text_overlay": "text to display if any",
       "audio_notes": "audio requirements for this segment"
@@ -175,27 +167,17 @@ FORMAT RESPONSE AS JSON:
     "final_touches": "additional requirements"
   },
   "estimated_time": "total generation time estimate",
-  "complexity_score": "1-10 scale"
+  "complexity_score": 7
 }
 `
 
-      const completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert video production planner specializing in AI-generated content. Create detailed, actionable plans for video generation using multiple AI models."
-          },
-          {
-            role: "user",
-            content: planPrompt
-          }
-        ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.4,
-        max_tokens: 3000
-      })
+      const result = await model.generateContent([
+        {
+          text: `You are an expert video production planner specializing in AI-generated content. Create detailed, actionable plans for video generation using multiple AI models.\n\n${planPrompt}`
+        }
+      ])
 
-      const planText = completion.choices[0]?.message?.content
+      const planText = result.response.text()
       if (!planText) {
         throw new Error('No plan generated')
       }
@@ -232,6 +214,8 @@ export const chatService = {
   // Chat with AI about modifying the plan
   chatAboutPlan: async (plan: any, chatHistory: any[], userMessage: string) => {
     try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+      
       const chatPrompt = `
 You are helping a user modify their video generation plan. The user wants to discuss changes to the plan.
 
@@ -252,24 +236,13 @@ Please respond helpfully to the user's question or request about the plan. If th
 Keep responses conversational and helpful. If plan changes are needed, provide specific updated JSON sections.
 `
 
-      const completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert video production assistant helping users refine their AI video generation plans. Be conversational, helpful, and technical when needed."
-          },
-          ...chatHistory.slice(-10), // Keep last 10 messages for context
-          {
-            role: "user",
-            content: chatPrompt
-          }
-        ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.6,
-        max_tokens: 1500
-      })
+      const result = await model.generateContent([
+        {
+          text: `You are an expert video production assistant helping users refine their AI video generation plans. Be conversational, helpful, and technical when needed.\n\n${chatPrompt}`
+        }
+      ])
 
-      const response = completion.choices[0]?.message?.content
+      const response = result.response.text()
       if (!response) {
         throw new Error('No chat response received')
       }
@@ -291,6 +264,8 @@ Keep responses conversational and helpful. If plan changes are needed, provide s
   // Extract plan updates from chat response
   extractPlanUpdates: async (chatResponse: string, currentPlan: any) => {
     try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+      
       const extractPrompt = `
 Analyze the chat response and extract any plan updates or modifications.
 
@@ -304,7 +279,7 @@ If the chat response contains plan modifications, extract them and return update
 
 FORMAT AS JSON:
 {
-  "has_updates": boolean,
+  "has_updates": true,
   "updated_sections": {
     // only include sections that need updates
   },
@@ -312,23 +287,13 @@ FORMAT AS JSON:
 }
 `
 
-      const completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: "You are a plan update extractor. Identify and extract plan modifications from chat responses."
-          },
-          {
-            role: "user",
-            content: extractPrompt
-          }
-        ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.2,
-        max_tokens: 1000
-      })
+      const result = await model.generateContent([
+        {
+          text: `You are a plan update extractor. Identify and extract plan modifications from chat responses.\n\n${extractPrompt}`
+        }
+      ])
 
-      const updateText = completion.choices[0]?.message?.content
+      const updateText = result.response.text()
       if (!updateText) {
         return { success: false, error: 'No update analysis received' }
       }
