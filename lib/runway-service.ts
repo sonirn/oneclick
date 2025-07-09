@@ -27,16 +27,19 @@ class RunwayService {
 
   async generateVideo(request: RunwayGenerationRequest): Promise<RunwayGenerationResponse> {
     try {
+      // Real RunwayML API integration
       const payload = {
-        model: request.model,
+        model: request.model === 'gen4_turbo' ? 'gen4-turbo' : 'gen3-alpha',
         prompt: request.prompt,
         ...(request.imageUrl && { image: request.imageUrl }),
-        duration: request.duration,
-        ratio: request.aspectRatio,
+        duration: Math.min(request.duration, request.model === 'gen4_turbo' ? 10 : 4), // Gen4: 10s max, Gen3: 4s max
+        ratio: request.aspectRatio === '9:16' ? '720:1280' : '1280:720',
         seed: Math.floor(Math.random() * 1000000)
       };
 
-      const response = await fetch(`${this.baseUrl}/image_to_video`, {
+      console.log('RunwayML request:', payload);
+
+      const response = await fetch(`${this.baseUrl}/video/generate`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -47,15 +50,17 @@ class RunwayService {
 
       if (!response.ok) {
         const error = await response.text();
+        console.error('RunwayML API error:', error);
         throw new Error(`RunwayML API error: ${response.status} - ${error}`);
       }
 
       const data = await response.json();
+      console.log('RunwayML response:', data);
       
       return {
-        taskId: data.id,
+        taskId: data.id || data.task_id,
         status: data.status || 'processing',
-        videoUrl: data.output?.[0],
+        videoUrl: data.output?.[0] || data.video_url,
         error: data.error
       };
     } catch (error) {
