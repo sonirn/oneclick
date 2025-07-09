@@ -51,31 +51,33 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if the response contains plan updates
-      const updateResult = await chatService.extractPlanUpdates(
-        chatResult.response,
-        project.generation_plan
-      )
-
-      let updatedPlan = project.generation_plan
-      let planUpdated = false
-
-      if (updateResult.success && updateResult.updates?.has_updates) {
-        // Merge updates into the existing plan
-        updatedPlan = {
-          ...project.generation_plan,
-          ...updateResult.updates.updated_sections
-        }
-        planUpdated = true
-
-        // Update the project with the modified plan
-        await db.query(
-          `UPDATE projects 
-           SET generation_plan = $1, updated_at = NOW() 
-           WHERE id = $2`,
-          [JSON.stringify(updatedPlan), projectId]
+      if ('response' in chatResult) {
+        const updateResult = await chatService.extractPlanUpdates(
+          chatResult.response,
+          project.generation_plan
         )
 
-        console.log('Plan updated based on chat:', updateResult.updates.summary)
+        let updatedPlan = project.generation_plan
+        let planUpdated = false
+
+        if (updateResult.success && updateResult.updates?.has_updates) {
+          // Merge updates into the existing plan
+          updatedPlan = {
+            ...project.generation_plan,
+            ...updateResult.updates.updated_sections
+          }
+          planUpdated = true
+
+          // Update the project with the modified plan
+          await db.query(
+            `UPDATE projects 
+             SET generation_plan = $1, updated_at = NOW() 
+             WHERE id = $2`,
+            [JSON.stringify(updatedPlan), projectId]
+          )
+
+          console.log('Plan updated based on chat:', updateResult.updates.summary)
+        }
       }
 
       return NextResponse.json({ 
