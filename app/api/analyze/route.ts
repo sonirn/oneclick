@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
           `UPDATE processing_jobs 
            SET status = $1, error_message = $2, updated_at = NOW()
            WHERE id = $3`,
-          ['failed', analysisResult.error, jobId]
+          ['failed', 'error' in analysisResult ? analysisResult.error : 'Analysis failed', jobId]
         )
 
         // Update project status
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ 
           success: false, 
-          error: analysisResult.error,
+          error: 'error' in analysisResult ? analysisResult.error : 'Analysis failed',
           job_id: jobId
         }, { status: 500 })
       }
