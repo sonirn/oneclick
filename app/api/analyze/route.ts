@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         project.audio_file_url
       )
 
-      if (analysisResult.success) {
+      if (analysisResult.success && analysisResult.analysis) {
         // Update project with analysis results
         await db.query(
           `UPDATE projects 
