@@ -166,7 +166,7 @@ export default function Dashboard({ user, onSignOut }: DashboardProps) {
           {activeTab === 'create' && <CreateProject user={user} />}
           {activeTab === 'library' && <VideoLibrary user={user} />}
           {activeTab === 'analytics' && <AnalyticsDashboard user={user} />}
-          {activeTab === 'settings' && <Settings user={user} />}
+          {activeTab === 'settings' && <UserSettings user={user} />}
         </div>
       </div>
     </div>
