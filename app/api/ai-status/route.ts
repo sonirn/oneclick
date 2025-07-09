@@ -4,71 +4,11 @@ export async function GET() {
   const status = {
     overall: 'healthy',
     ai_services: {
-      groq: { status: 'unknown', message: '' },
-      xai: { status: 'unknown', message: '' },
       gemini: { status: 'unknown', message: '' },
       runway: { status: 'unknown', message: '' },
       elevenlabs: { status: 'unknown', message: '' }
     },
     timestamp: new Date().toISOString()
-  }
-
-  // Test Groq API
-  try {
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/models', {
-      headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    
-    if (groqResponse.ok) {
-      status.ai_services.groq = {
-        status: 'healthy',
-        message: 'Groq API connection successful'
-      }
-    } else {
-      status.ai_services.groq = {
-        status: 'unhealthy',
-        message: `Groq API error: ${groqResponse.status}`
-      }
-      status.overall = 'degraded'
-    }
-  } catch (error) {
-    status.ai_services.groq = {
-      status: 'unhealthy',
-      message: error instanceof Error ? error.message : 'Groq API connection failed'
-    }
-    status.overall = 'degraded'
-  }
-
-  // Test XAI API
-  try {
-    const xaiResponse = await fetch('https://api.x.ai/v1/models', {
-      headers: {
-        'Authorization': `Bearer ${process.env.XAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    
-    if (xaiResponse.ok) {
-      status.ai_services.xai = {
-        status: 'healthy',
-        message: 'XAI API connection successful'
-      }
-    } else {
-      status.ai_services.xai = {
-        status: 'unhealthy',
-        message: `XAI API error: ${xaiResponse.status}`
-      }
-      status.overall = 'degraded'
-    }
-  } catch (error) {
-    status.ai_services.xai = {
-      status: 'unhealthy',
-      message: error instanceof Error ? error.message : 'XAI API connection failed'
-    }
-    status.overall = 'degraded'
   }
 
   // Test Gemini API
