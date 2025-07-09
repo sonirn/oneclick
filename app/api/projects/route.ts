@@ -131,7 +131,9 @@ export async function POST(request: NextRequest) {
           error: 'Failed to upload video' 
         }, { status: 500 })
       }
-      uploads.sample_video_url = videoUpload.url
+      if (videoUpload.url) {
+        uploads.sample_video_url = videoUpload.url
+      }
 
       // Upload image if provided
       if (imageFile) {
