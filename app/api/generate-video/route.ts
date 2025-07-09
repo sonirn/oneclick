@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Create comprehensive video generation request
-    const generationRequest: VideoGenerationRequest = {
+    const generationRequest = {
       projectId: projectId,
       plan: project.generation_plan,
       sampleVideoUrl: project.sample_video_url,
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Use the new comprehensive video generation service
-    const result = await videoGenerationService.generateVideo(generationRequest);
+    const result = await videoGenerationService.generateVideo(projectId, generationRequest);
 
     if (!result.success) {
       // Update project status to failed
