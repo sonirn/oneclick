@@ -46,18 +46,16 @@
     "zustand": "^4.4.6"
   },
   "devDependencies": {
-    "@types/fluent-ffmpeg": "^2.1.27",
     "@types/formidable": "^3.4.5",
     "@types/mime-types": "^2.1.4",
-    "@types/multer": "^1.4.11",
     "@types/node": "^20",
     "@types/pg": "^8.10.7",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^9.0.7",
     "autoprefixer": "^10",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.5",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
