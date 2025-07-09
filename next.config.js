@@ -1,25 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   images: {
     domains: ['supabase.co', 'r2.cloudflarestorage.com', 'storage.googleapis.com'],
-  },
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb',
-    },
-    responseLimit: '50mb',
   },
   // Vercel deployment optimizations
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  // Enable compression for better performance
-  compress: true,
-  // Production optimizations
-  swcMinify: true,
   // Configure headers for better security and performance
   async headers() {
     return [
@@ -42,10 +29,6 @@ const nextConfig = {
       },
     ];
   },
-  // Vercel serverless function configuration
-  serverRuntimeConfig: {
-    maxDuration: 300, // 5 minutes for serverless functions
-  },
   // Configure rewrites for better routing
   async rewrites() {
     return [
@@ -59,8 +42,6 @@ const nextConfig = {
   async redirects() {
     return [];
   },
-  // Output configuration for Vercel
-  output: 'standalone',
   // Webpack configuration for bundle optimization
   webpack: (config, { isServer }) => {
     // Optimize for serverless deployment
@@ -71,12 +52,8 @@ const nextConfig = {
   },
   // Disable x-powered-by header for security
   poweredByHeader: false,
-  // Enable gzip compression
-  compress: true,
   // Configure trailing slash behavior
   trailingSlash: false,
-  // Configure static file serving
-  assetPrefix: process.env.NODE_ENV === 'production' ? undefined : undefined,
 };
 
 module.exports = nextConfig;
