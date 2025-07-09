@@ -246,7 +246,7 @@ export default function ProjectList({ user }: ProjectListProps) {
     })
   }
 
-  const uniqueStatuses = [...new Set(projects.map(p => p.status))]
+  const uniqueStatuses = Array.from(new Set(projects.map(p => p.status)))
 
   if (selectedProject) {
     return (
