@@ -3,30 +3,31 @@ import { db } from '@/lib/database'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.id
+    const resolvedParams = await params;
+    const projectId = resolvedParams.id;
 
     if (!projectId) {
       return NextResponse.json({ 
         success: false, 
         error: 'Project ID is required' 
-      }, { status: 400 })
+      }, { status: 400 });
     }
 
     // Get project details
-    const projectQuery = 'SELECT * FROM projects WHERE id = $1'
-    const projectResult = await db.query(projectQuery, [projectId])
+    const projectQuery = 'SELECT * FROM projects WHERE id = $1';
+    const projectResult = await db.query(projectQuery, [projectId]);
     
     if (projectResult.rows.length === 0) {
       return NextResponse.json({ 
         success: false, 
         error: 'Project not found' 
-      }, { status: 404 })
+      }, { status: 404 });
     }
 
-    const project = projectResult.rows[0]
+    const project = projectResult.rows[0];
 
     // Get current processing jobs
     const jobsQuery = `
@@ -34,8 +35,8 @@ export async function GET(
       FROM processing_jobs 
       WHERE project_id = $1 
       ORDER BY created_at DESC
-    `
-    const jobsResult = await db.query(jobsQuery, [projectId])
+    `;
+    const jobsResult = await db.query(jobsQuery, [projectId]);
 
     // Get generated videos status
     const videosQuery = `
@@ -44,17 +45,17 @@ export async function GET(
       FROM generated_videos 
       WHERE project_id = $1 
       ORDER BY created_at ASC
-    `
-    const videosResult = await db.query(videosQuery, [projectId])
+    `;
+    const videosResult = await db.query(videosQuery, [projectId]);
 
     // Calculate overall progress
-    const videos = videosResult.rows
-    const totalVideos = videos.length
-    const completedVideos = videos.filter(v => v.status === 'completed').length
-    const failedVideos = videos.filter(v => v.status === 'failed').length
-    const processingVideos = videos.filter(v => v.status === 'processing').length
+    const videos = videosResult.rows;
+    const totalVideos = videos.length;
+    const completedVideos = videos.filter(v => v.status === 'completed').length;
+    const failedVideos = videos.filter(v => v.status === 'failed').length;
+    const processingVideos = videos.filter(v => v.status === 'processing').length;
 
-    const overallProgress = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0
+    const overallProgress = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
 
     // Get detailed segment progress
     const segmentProgress = videos.map(video => ({
@@ -67,22 +68,22 @@ export async function GET(
       segment_info: video.generation_params ? JSON.parse(video.generation_params) : {},
       created_at: video.created_at,
       updated_at: video.updated_at
-    }))
+    }));
 
     // Determine current phase
-    let currentPhase = 'idle'
+    let currentPhase = 'idle';
     if (project.status === 'analyzing') {
-      currentPhase = 'analysis'
+      currentPhase = 'analysis';
     } else if (project.status === 'planning') {
-      currentPhase = 'planning'
+      currentPhase = 'planning';
     } else if (project.status === 'generating') {
-      currentPhase = 'generation'
+      currentPhase = 'generation';
     } else if (project.status === 'composing') {
-      currentPhase = 'composition'
+      currentPhase = 'composition';
     } else if (project.status === 'completed') {
-      currentPhase = 'completed'
+      currentPhase = 'completed';
     } else if (project.status === 'failed') {
-      currentPhase = 'failed'
+      currentPhase = 'failed';
     }
 
     return NextResponse.json({
@@ -112,71 +113,71 @@ export async function GET(
         completed_at: job.completed_at
       })),
       segments: segmentProgress,
-      estimated_completion: this.calculateEstimatedCompletion(videos),
-      next_steps: this.getNextSteps(project.status, videos)
-    })
+      estimated_completion: calculateEstimatedCompletion(videos),
+      next_steps: getNextSteps(project.status, videos)
+    });
   } catch (error) {
-    console.error('Error getting project progress:', error)
+    console.error('Error getting project progress:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Failed to get project progress' 
-    }, { status: 500 })
+    }, { status: 500 });
   }
 }
 
 function calculateEstimatedCompletion(videos: any[]): string {
-  const processingVideos = videos.filter(v => v.status === 'processing')
+  const processingVideos = videos.filter(v => v.status === 'processing');
   
   if (processingVideos.length === 0) {
-    return 'N/A'
+    return 'N/A';
   }
   
   // Rough estimation: 2 minutes per segment
-  const estimatedMinutes = processingVideos.length * 2
-  const completionTime = new Date(Date.now() + estimatedMinutes * 60 * 1000)
+  const estimatedMinutes = processingVideos.length * 2;
+  const completionTime = new Date(Date.now() + estimatedMinutes * 60 * 1000);
   
-  return completionTime.toISOString()
+  return completionTime.toISOString();
 }
 
 function getNextSteps(projectStatus: string, videos: any[]): string[] {
-  const steps: string[] = []
+  const steps: string[] = [];
   
   switch (projectStatus) {
     case 'analyzing':
-      steps.push('Analyzing video content and style')
-      steps.push('Extracting key visual elements')
-      break
+      steps.push('Analyzing video content and style');
+      steps.push('Extracting key visual elements');
+      break;
     case 'planning':
-      steps.push('Generating detailed video plan')
-      steps.push('Selecting optimal AI models')
-      break
+      steps.push('Generating detailed video plan');
+      steps.push('Selecting optimal AI models');
+      break;
     case 'generating':
-      const processingCount = videos.filter(v => v.status === 'processing').length
-      const pendingCount = videos.filter(v => v.status === 'pending').length
+      const processingCount = videos.filter(v => v.status === 'processing').length;
+      const pendingCount = videos.filter(v => v.status === 'pending').length;
       
       if (processingCount > 0) {
-        steps.push(`Processing ${processingCount} video segments`)
+        steps.push(`Processing ${processingCount} video segments`);
       }
       if (pendingCount > 0) {
-        steps.push(`${pendingCount} segments waiting in queue`)
+        steps.push(`${pendingCount} segments waiting in queue`);
       }
-      break
+      break;
     case 'composing':
-      steps.push('Stitching video segments together')
-      steps.push('Adding audio and effects')
-      steps.push('Final quality check')
-      break
+      steps.push('Stitching video segments together');
+      steps.push('Adding audio and effects');
+      steps.push('Final quality check');
+      break;
     case 'completed':
-      steps.push('Video generation completed!')
-      steps.push('Ready for download')
-      break
+      steps.push('Video generation completed!');
+      steps.push('Ready for download');
+      break;
     case 'failed':
-      steps.push('Review error messages')
-      steps.push('Retry failed segments')
-      break
+      steps.push('Review error messages');
+      steps.push('Retry failed segments');
+      break;
     default:
-      steps.push('Ready to start generation')
+      steps.push('Ready to start generation');
   }
   
-  return steps
+  return steps;
 }

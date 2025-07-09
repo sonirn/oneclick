@@ -3,27 +3,28 @@ import { db } from '@/lib/database'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.id
+    const resolvedParams = await params;
+    const projectId = resolvedParams.id;
 
     if (!projectId) {
       return NextResponse.json({ 
         success: false, 
         error: 'Project ID is required' 
-      }, { status: 400 })
+      }, { status: 400 });
     }
 
     // Check if project exists
-    const projectQuery = 'SELECT id FROM projects WHERE id = $1'
-    const projectResult = await db.query(projectQuery, [projectId])
+    const projectQuery = 'SELECT id FROM projects WHERE id = $1';
+    const projectResult = await db.query(projectQuery, [projectId]);
     
     if (projectResult.rows.length === 0) {
       return NextResponse.json({ 
         success: false, 
         error: 'Project not found' 
-      }, { status: 404 })
+      }, { status: 404 });
     }
 
     // In production, you would have a separate favorites table
@@ -33,12 +34,12 @@ export async function POST(
     return NextResponse.json({ 
       success: true, 
       message: 'Favorite status updated' 
-    })
+    });
   } catch (error) {
-    console.error('Error updating favorite:', error)
+    console.error('Error updating favorite:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Failed to update favorite' 
-    }, { status: 500 })
+    }, { status: 500 });
   }
 }

@@ -3,27 +3,28 @@ import { db } from '@/lib/database'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const videoId = params.id
+    const resolvedParams = await params;
+    const videoId = resolvedParams.id;
 
     if (!videoId) {
       return NextResponse.json({ 
         success: false, 
         error: 'Video ID is required' 
-      }, { status: 400 })
+      }, { status: 400 });
     }
 
     // Check if video exists
-    const videoQuery = 'SELECT id FROM generated_videos WHERE id = $1'
-    const videoResult = await db.query(videoQuery, [videoId])
+    const videoQuery = 'SELECT id FROM generated_videos WHERE id = $1';
+    const videoResult = await db.query(videoQuery, [videoId]);
     
     if (videoResult.rows.length === 0) {
       return NextResponse.json({ 
         success: false, 
         error: 'Video not found' 
-      }, { status: 404 })
+      }, { status: 404 });
     }
 
     // In production, you would have a separate favorites table
@@ -33,12 +34,12 @@ export async function POST(
     return NextResponse.json({ 
       success: true, 
       message: 'Favorite status updated' 
-    })
+    });
   } catch (error) {
-    console.error('Error updating favorite:', error)
+    console.error('Error updating favorite:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Failed to update favorite' 
-    }, { status: 500 })
+    }, { status: 500 });
   }
 }
