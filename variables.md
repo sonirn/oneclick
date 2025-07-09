@@ -50,6 +50,7 @@ AIML_API_KEY=0265a06c0ea444af848b455cb48edad9
 ### **📱 Application Configuration**
 ```
 NODE_ENV=production
+NEXTAUTH_URL=https://oneclickvid.vercel.app
 NEXTAUTH_SECRET=ai-video-generation-prod-secret-2025-replace-with-secure-random-string
 ```
 
