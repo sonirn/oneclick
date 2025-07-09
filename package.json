@@ -47,6 +47,7 @@
     "zustand": "^4.4.6"
   },
   "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.27",
     "@types/formidable": "^3.4.5",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20",
