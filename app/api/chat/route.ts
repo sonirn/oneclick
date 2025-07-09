@@ -51,14 +51,15 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if the response contains plan updates
+      let updatedPlan = project.generation_plan
+      let planUpdated = false
+      let updateSummary = null
+
       if ('response' in chatResult) {
         const updateResult = await chatService.extractPlanUpdates(
           chatResult.response,
           project.generation_plan
         )
-
-        let updatedPlan = project.generation_plan
-        let planUpdated = false
 
         if (updateResult.success && updateResult.updates?.has_updates) {
           // Merge updates into the existing plan
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
             ...updateResult.updates.updated_sections
           }
           planUpdated = true
+          updateSummary = updateResult.updates.summary
 
           // Update the project with the modified plan
           await db.query(
@@ -83,9 +85,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true, 
         response: 'response' in chatResult ? chatResult.response : 'Chat failed',
-        plan_updated: false,
-        updated_plan: null,
-        update_summary: null,
+        plan_updated: planUpdated,
+        updated_plan: planUpdated ? updatedPlan : null,
+        update_summary: updateSummary,
         timestamp: 'timestamp' in chatResult ? chatResult.timestamp : new Date().toISOString()
       })
     } catch (chatError) {
