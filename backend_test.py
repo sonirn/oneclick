@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 
 # Get the backend URL from environment variables
-BACKEND_URL = "http://localhost:3001/api"
+BACKEND_URL = "http://localhost:3001/api"  # Using the default port from package.json
 
 # Test data
 TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440000"  # Use the valid UUID format as specified
