@@ -160,6 +160,7 @@ export default function Dashboard({ user, onSignOut }: DashboardProps) {
         <div className="p-4 lg:p-6">
           {activeTab === 'projects' && <ProjectList user={user} />}
           {activeTab === 'create' && <CreateProject user={user} />}
+          {activeTab === 'library' && <VideoLibrary user={user} />}
           {activeTab === 'settings' && (
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold mb-4">Settings</h2>
