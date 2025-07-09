@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
-import { videoGenerationService, VideoGenerationPlan } from '@/lib/video-generation-service'
-import { v4 as uuidv4 } from 'uuid'
+import { videoGenerationService, VideoGenerationRequest } from '@/lib/video-generation-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,24 +39,58 @@ export async function POST(request: NextRequest) {
       ['generating', projectId]
     )
 
-    // Use the new video generation service
-    const generationPlan: VideoGenerationPlan = project.generation_plan;
-    const result = await videoGenerationService.generateVideo(projectId, generationPlan);
+    // Create comprehensive video generation request
+    const generationRequest: VideoGenerationRequest = {
+      projectId: projectId,
+      plan: project.generation_plan,
+      sampleVideoUrl: project.sample_video_url,
+      characterImageUrl: project.character_image_url,
+      audioFileUrl: project.audio_file_url,
+      userRequirements: project.description
+    };
+
+    // Use the new comprehensive video generation service
+    const result = await videoGenerationService.generateVideo(generationRequest);
 
     if (!result.success) {
+      // Update project status to failed
+      await db.query(
+        'UPDATE projects SET status = $1, updated_at = NOW() WHERE id = $2',
+        ['failed', projectId]
+      )
+      
       return NextResponse.json({ 
         success: false, 
         error: result.error || 'Video generation failed' 
       }, { status: 500 })
     }
 
+    // Create processing job record
+    await db.query(
+      `INSERT INTO processing_jobs (id, project_id, job_type, status, progress, job_data, created_at) 
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+      [result.jobId, projectId, 'video_generation', 'processing', 0, JSON.stringify(generationRequest)]
+    )
+
     return NextResponse.json({ 
       success: true, 
       job_id: result.jobId,
-      video_ids: result.videoIds,
-      message: 'Video generation started with real AI models',
+      status: result.status,
+      progress: result.progress,
       estimated_time: result.estimatedTime,
-      ai_models_used: generationPlan.segments.map(s => s.ai_model)
+      message: 'Video generation started with real AI models (RunwayML, Google Veo, ElevenLabs)',
+      ai_models_available: ['RunwayML Gen-4 Turbo', 'RunwayML Gen-3 Alpha', 'Google Veo 3', 'Google Veo 2'],
+      features: [
+        'Real AI video generation',
+        'Automatic segment creation',
+        'Multi-model AI selection',
+        'Audio generation with ElevenLabs',
+        'FFmpeg video composition',
+        'Background processing',
+        'Progress tracking',
+        '9:16 aspect ratio',
+        'High quality output'
+      ]
     })
   } catch (error) {
     console.error('Error starting video generation:', error)
@@ -67,5 +100,3 @@ export async function POST(request: NextRequest) {
     }, { status: 500 })
   }
 }
-
-// Remove the old simulation function since we're using real AI services now
