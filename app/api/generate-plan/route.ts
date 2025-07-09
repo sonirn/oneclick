@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
           `UPDATE processing_jobs 
            SET status = $1, error_message = $2, updated_at = NOW()
            WHERE id = $3`,
-          ['failed', planResult.error, jobId]
+          ['failed', 'error' in planResult ? planResult.error : 'Plan generation failed', jobId]
         )
 
         // Update project status
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ 
           success: false, 
-          error: planResult.error,
+          error: 'error' in planResult ? planResult.error : 'Plan generation failed',
           job_id: jobId
         }, { status: 500 })
       }
