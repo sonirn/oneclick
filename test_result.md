@@ -73,11 +73,11 @@ backend:
 
   - task: "Real AI Video Generation API"
     implemented: true
-    working: true
+    working: false
     file: "/app/app/api/generate-video/route.ts"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
@@ -88,6 +88,9 @@ backend:
       - working: true
         agent: "main"
         comment: "PHASE 3 COMPLETE: Upgraded to real AI video generation with RunwayML Gen-4/Gen-3, Google Veo 2/3, ElevenLabs audio, and FFmpeg composition. Background job processing implemented."
+      - working: false
+        agent: "testing"
+        comment: "API route is implemented but fails with error: 'Cannot read properties of undefined (reading 'total_duration')'. This suggests an issue with the plan format or parsing."
 
   - task: "AI Services Integration"
     implemented: true
