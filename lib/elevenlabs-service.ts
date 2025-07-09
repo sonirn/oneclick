@@ -181,11 +181,21 @@ class ElevenLabsService {
     }
   }
 
+  private async estimateAudioDuration(audioBuffer: ArrayBuffer): Promise<number> {
+    // Simple estimation: MP3 at 128kbps ~ 16KB per second
+    const sizeInBytes = audioBuffer.byteLength;
+    const estimatedDuration = sizeInBytes / 16000; // Rough estimation
+    return Math.max(1, estimatedDuration); // Minimum 1 second
+  }
+
   private async getAudioDuration(audioBlob: Blob): Promise<number> {
     return new Promise((resolve) => {
       const audio = new Audio();
       audio.addEventListener('loadedmetadata', () => {
         resolve(audio.duration);
+      });
+      audio.addEventListener('error', () => {
+        resolve(5); // Default 5 seconds on error
       });
       audio.src = URL.createObjectURL(audioBlob);
     });
