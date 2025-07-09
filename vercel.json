@@ -1,12 +1,6 @@
 {
   "version": 2,
   "name": "ai-video-generation-platform",
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    }
-  ],
   "env": {
     "NODE_ENV": "production"
   },
