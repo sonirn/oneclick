@@ -6,8 +6,10 @@ import { videoGenerationService } from './video-generation-service';
 
 // Redis client setup
 const redis = Redis.createClient({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
+  socket: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379')
+  },
   password: process.env.REDIS_PASSWORD
 });
 
