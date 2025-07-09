@@ -52,8 +52,7 @@ export async function GET() {
     const { data: { session } } = await supabase.auth.getSession()
     status.services.supabase = {
       status: 'healthy',
-      message: 'Supabase connection successful',
-      hasSession: !!session
+      message: 'Supabase connection successful'
     }
   } catch (error) {
     status.services.supabase = {
