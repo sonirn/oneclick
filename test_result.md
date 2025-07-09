@@ -139,15 +139,18 @@ backend:
 
   - task: "Real-time Progress Tracking"
     implemented: true
-    working: true
+    working: false
     file: "/app/app/api/projects/[id]/progress/route.ts, /app/app/api/jobs/[id]/progress/route.ts"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "PHASE 3: Implemented comprehensive progress tracking APIs with detailed segment status, job monitoring, and real-time updates."
+      - working: false
+        agent: "testing"
+        comment: "Progress tracking APIs are implemented but return errors. The project progress API returns a 500 error, and the job progress API returns 'Job not found' error."
 
 frontend:
   - task: "Frontend UI"
