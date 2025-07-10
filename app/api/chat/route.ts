@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       
       // Get AI response about the plan
       const chatResult = await chatService.chatAboutPlan(
-        project.generation_plan,
+        parsedPlan,
         chatHistory,
         message
       )
@@ -64,20 +64,20 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if the response contains plan updates
-      let updatedPlan = project.generation_plan
+      let updatedPlan = parsedPlan
       let planUpdated = false
       let updateSummary = null
 
       if ('response' in chatResult) {
         const updateResult = await chatService.extractPlanUpdates(
           chatResult.response,
-          project.generation_plan
+          parsedPlan
         )
 
         if (updateResult.success && updateResult.updates?.has_updates) {
           // Merge updates into the existing plan
           updatedPlan = {
-            ...project.generation_plan,
+            ...parsedPlan,
             ...updateResult.updates.updated_sections
           }
           planUpdated = true
