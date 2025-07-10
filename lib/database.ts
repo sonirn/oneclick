@@ -68,6 +68,11 @@ export const initDatabase = async () => {
       )
     `)
 
+    // Add missing columns to generated_videos table
+    await db.query(`
+      ALTER TABLE generated_videos ADD COLUMN IF NOT EXISTS error_message TEXT;
+    `)
+
     // Processing Jobs table
     await db.query(`
       CREATE TABLE IF NOT EXISTS processing_jobs (
