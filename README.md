@@ -164,13 +164,13 @@ node scripts/deploy-check.js
 ### Testing Rate Limiting
 ```bash
 # Check rate limiting status
-curl http://localhost:3000/api/rate-limit-status
+curl https://oneclickvid.vercel.app/api/rate-limit-status
 
 # Test AI services
-curl http://localhost:3000/api/ai-status
+curl https://oneclickvid.vercel.app/api/ai-status
 
 # Monitor system status
-curl http://localhost:3000/api/status
+curl https://oneclickvid.vercel.app/api/status
 ```
 
 ## 📈 Monitoring
