@@ -8,10 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "db:test": "curl -s http://localhost:3000/api/test-db",
-    "status": "curl -s http://localhost:3000/api/status | jq",
-    "ai-status": "curl -s http://localhost:3000/api/ai-status | jq",
-    "rate-limit-status": "curl -s http://localhost:3000/api/rate-limit-status | jq",
+    "db:test": "curl -s https://oneclickvid.vercel.app/api/test-db",
+    "status": "curl -s https://oneclickvid.vercel.app/api/status | jq",
+    "ai-status": "curl -s https://oneclickvid.vercel.app/api/ai-status | jq",
+    "rate-limit-status": "curl -s https://oneclickvid.vercel.app/api/rate-limit-status | jq",
     "vercel-build": "next build"
   },
   "dependencies": {
