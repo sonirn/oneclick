@@ -33,6 +33,19 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Parse the generation plan JSON string
+    let parsedPlan;
+    try {
+      parsedPlan = typeof project.generation_plan === 'string' 
+        ? JSON.parse(project.generation_plan) 
+        : project.generation_plan;
+    } catch (error) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Invalid generation plan format. Please regenerate the plan.' 
+      }, { status: 400 })
+    }
+
     // Update project status to generating
     await db.query(
       'UPDATE projects SET status = $1, updated_at = NOW() WHERE id = $2',
