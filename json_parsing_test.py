@@ -34,7 +34,7 @@ def setup_test_data():
         """, (user_id, "test@example.com", "Test User"))
         
         # Create test project with JSON strings (not JSONB objects)
-        project_id = "test-project-json-parsing-123"
+        project_id = "550e8400-e29b-41d4-a716-446655440001"
         
         # Mock analysis result as JSON string (this is how it's stored in DB)
         analysis_result_json = json.dumps({
