@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['supabase.co', 'r2.cloudflarestorage.com', 'storage.googleapis.com'],
+    domains: ['supabase.co', 'wkpzstruxifatrnkobaw.supabase.co', 'r2.cloudflarestorage.com', 'storage.googleapis.com', 'oneclickvid.vercel.app'],
   },
   // Vercel deployment optimizations
   env: {
