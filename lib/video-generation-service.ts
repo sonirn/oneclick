@@ -206,7 +206,8 @@ class VideoGenerationService {
           
           console.log(`Audio generated successfully for project ${projectId}`);
         } else {
-          throw new Error(voiceResult.error || 'Audio generation failed');
+          console.warn(`Audio generation failed for project ${projectId}: ${voiceResult.error}`);
+          // Don't throw error - continue with video generation without audio
         }
       }
     } catch (error) {
