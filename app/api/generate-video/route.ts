@@ -6,10 +6,10 @@ export async function POST(request: NextRequest) {
   try {
     const { projectId, plan } = await request.json()
 
-    if (!projectId || !plan) {
+    if (!projectId) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Project ID and plan are required' 
+        error: 'Project ID is required' 
       }, { status: 400 })
     }
 
