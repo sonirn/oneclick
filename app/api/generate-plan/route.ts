@@ -33,6 +33,19 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Parse the analysis result JSON string
+    let parsedAnalysis;
+    try {
+      parsedAnalysis = typeof project.analysis_result === 'string' 
+        ? JSON.parse(project.analysis_result) 
+        : project.analysis_result;
+    } catch (error) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Invalid analysis result format. Please re-analyze the project.' 
+      }, { status: 400 })
+    }
+
     // Update project status to planning
     await db.query(
       'UPDATE projects SET status = $1, updated_at = NOW() WHERE id = $2',
