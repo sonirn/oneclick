@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       'plan_generation',
       'processing',
       JSON.stringify({
-        analysis: project.analysis_result,
+        analysis: parsedAnalysis,
         user_requirements: userRequirements
       })
     ])
