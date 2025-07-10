@@ -51,6 +51,18 @@ XAI_API_KEY=xai-gfsT8tOq7SwgADNTPzhYF6m0r3zvwgnqRJ46fwOvtqx3lj6Dlh6RF544fClaDT4j
 AIML_API_KEY=0265a06c0ea444af848b455cb48edad9
 ```
 
+### **🔄 Redis/KV Configuration (Upstash)**
+```
+KV_URL=rediss://default:Ad5kAAIjcDEyNjg0OWZhODc3MTQ0YTQ3YTYxYTUxMDI4YjcyMmRhZXAxMA@perfect-mink-56932.upstash.io:6379
+KV_REST_API_URL=https://perfect-mink-56932.upstash.io
+KV_REST_API_TOKEN=Ad5kAAIjcDEyNjg0OWZhODc3MTQ0YTQ3YTYxYTUxMDI4YjcyMmRhZXAxMA
+KV_REST_API_READ_ONLY_TOKEN=At5kAAIgcDHo6XB4jFKVApc7At1RgKZ4IOkBk_U-CFR-g-5sd7BTZA
+REDIS_URL=rediss://default:Ad5kAAIjcDEyNjg0OWZhODc3MTQ0YTQ3YTYxYTUxMDI4YjcyMmRhZXAxMA@perfect-mink-56932.upstash.io:6379
+REDIS_HOST=perfect-mink-56932.upstash.io
+REDIS_PORT=6379
+REDIS_PASSWORD=Ad5kAAIjcDEyNjg0OWZhODc3MTQ0YTQ3YTYxYTUxMDI4YjcyMmRhZXAxMA
+```
+
 ### **📱 Application Configuration**
 ```
 NODE_ENV=production
