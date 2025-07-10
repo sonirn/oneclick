@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       console.log('Starting plan generation for project:', projectId)
       
       const planResult = await videoAnalysisService.generatePlan(
-        project.analysis_result,
+        parsedAnalysis,
         userRequirements
       )
 
