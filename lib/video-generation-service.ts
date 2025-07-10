@@ -60,7 +60,10 @@ class VideoGenerationService {
 
       // Process each segment
       for (const segment of plan.segments) {
-        const videoId = `video_${Date.now()}_${segment.segment_number}`;
+        // Generate proper UUID for video ID
+        const videoIdQuery = 'SELECT gen_random_uuid() as id';
+        const videoIdResult = await db.query(videoIdQuery);
+        const videoId = videoIdResult.rows[0].id;
         videoIds.push(videoId);
 
         // Create video record
